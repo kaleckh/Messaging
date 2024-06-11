@@ -1,5 +1,5 @@
 import MessageListItem from '../components/MessageListItem';
-import { useState, useRef } from 'react';
+import { useState, useRef, useContext } from 'react';
 import { Message, getMessages } from '../data/messages';
 import React, { useEffect } from 'react';
 import { getMessaging, Messaging } from 'firebase/messaging'
@@ -7,20 +7,23 @@ import { colorFill, heart, addOutline, settingsOutline, contractOutline } from "
 // import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 // import {  } from 'firebase';
 import { createClient, RealtimeChannel } from '@supabase/supabase-js'
-import ChatBox from '../components/ChatBox';
+
 import '../themes/chat.css'
 import { Keyboard } from '@capacitor/keyboard';
 const SUPABASE_URL = 'https://verqruktxvesbhtimfjm.supabase.co'
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcnFydWt0eHZlc2JodGltZmptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTMzMDM3NTIsImV4cCI6MjAyODg3OTc1Mn0.PL71cvIQHRnrUiA4QSPO4odky2s9PYE5dJ493s5sMVg'
 import { post } from '../utils';
 
+
 import {
   IonContent,
+  useIonRouter,
   IonIcon,
   IonCard,
   IonHeader,
   IonInput,
   IonCardTitle,
+  IonRouterLink,
   IonButton,
   IonCardContent,
   IonNavLink,
@@ -37,40 +40,31 @@ import {
   IonFabButton
 } from '@ionic/react';
 import './Home.css';
+import { MyContext } from '../providers/postProvider';
+import { useHistory } from 'react-router';
 
 const Home: React.FC = () => {
+  const router = useIonRouter();
+  const history = useHistory();
   const [messages, setMessages] = useState([])
   const [convos, setConvos] = useState([])
   const [myUsername, setMyUsername] = useState<string>('')
+  const { person, setPerson, getConvos, myConvos } = useContext(MyContext);
 
 
   useEffect(() => {
-    console.log(myUsername, 'my Username')
-  }, [myUsername])
+    getConvos()
+  }, [])
 
-
-
-  const getConvos = async () => {
-    try {
-      const convos = await fetch(
-        `http://localhost:3000/api/getConvos?email=${localStorage.getItem("user")}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      );
-      const userInfo = await convos.json();
-      setConvos(userInfo.Posts)
-      console.log(userInfo.Posts, "this is convo response");
-    } catch (error) {
-      console.log(error, "this is the create user error");
-    }
+  const handleNavigation = () => {
+    router.push('/home', 'forward');
   };
 
+  function gotoTopic(topicId: String) {
+    history.push("/chat/" + topicId);
+  }
 
-  console.log(convos, 'these are my convos')
+  console.log(myConvos[0].message, 'these are my convos')
   return (
     <>
       <IonPage>
@@ -94,15 +88,13 @@ const Home: React.FC = () => {
             )}
           </div> */}
           <IonList>
-            {convos ? <>{convos.map((convo) => {
+            {myConvos ? <>{myConvos.map((convo, i) => {
               return (<>
-                <IonCard>
-                  <IonNavLink routerDirection="forward" component={() => <ChatBox id={convo?.id} />} >
-                    <IonCardHeader>
-                      <IonCardTitle>{convo.users[0]}</IonCardTitle>
-                    </IonCardHeader>
-                  </IonNavLink>
-                  <IonCardContent>{convo.message[6].message}</IonCardContent>
+                <IonCard key={i}>
+                  <IonCardHeader onClick={() => { gotoTopic(convo.id) }}>
+                    <IonCardTitle>{convo.users.join(', ')}</IonCardTitle>
+                  </IonCardHeader>
+                  <IonCardContent>{convo.message[convo.message.length - 1].message}</IonCardContent>
                 </IonCard>
               </>)
             })}</> :
@@ -110,11 +102,11 @@ const Home: React.FC = () => {
           </IonList>
           <div className='center'>
             <div>Create A Conversation</div>
-            <IonNavLink routerDirection="forward" component={() => <ChatBox id={''} />}>
+            <IonRouterLink routerLink="/newChat" routerDirection="forward">
               <IonIcon size='large' icon={addOutline}></IonIcon>
-            </IonNavLink>
+            </IonRouterLink>
           </div>
-          <IonButton onClick={() => { getConvos() }}>Get Convos</IonButton>
+          {/* <IonButton onClick={() => { getConvos() }}>Get Convos</IonButton> */}
         </IonContent>
       </IonPage>
     </>

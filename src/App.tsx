@@ -35,6 +35,9 @@ import '@ionic/react/css/palettes/dark.system.css';
 /* Theme variables */
 import './theme/variables.css';
 import Login from './pages/Login';
+import { ContextProvider } from './providers/postProvider';
+import Chat from './pages/Chat';
+import ChatBox from './pages/CurrentChat';
 
 setupIonicReact();
 
@@ -42,24 +45,32 @@ const App: React.FC = () => (
 
 
   <IonNav root={() => (
-    <IonApp>
-      <IonReactRouter>
-        <IonRouterOutlet>
-          <Route path="/" exact={true}>
-            <Redirect to="/login" />
-          </Route>
-          <Route path="/home" exact={true}>
-            <Home />
-          </Route>
-          <Route path="/login" exact={true}>
-            <Login /> 
-          </Route>
-          <Route path="/message/:id">
-            <ViewMessage />
-          </Route>
-        </IonRouterOutlet>
-      </IonReactRouter>
-    </IonApp>
+    <ContextProvider>
+      <IonApp>
+        <IonReactRouter>
+          <IonRouterOutlet>
+            <Route path="/" exact={true}>
+              <Redirect to="/login" />
+            </Route>
+            <Route path="/home" exact={true}>
+              <Home />
+            </Route>
+            <Route path="/login" exact={true}>
+              <Login />
+            </Route>
+            <Route path="/message/:id">
+              <ViewMessage />
+            </Route>
+            <Route path="/newChat">
+              <Chat />
+            </Route>
+            <Route path="/chat/:topic_id">
+              <ChatBox />
+            </Route>
+          </IonRouterOutlet>
+        </IonReactRouter>
+      </IonApp>
+    </ContextProvider>
   )}>
   </IonNav>
 );
