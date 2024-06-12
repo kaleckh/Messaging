@@ -45,6 +45,7 @@ const Chat = () => {
     const { myUsername, person, setPerson } = useContext(MyContext);
     const [uniqueUsers, setUniqueUsers] = useState();
     const [myConvo, setMyConvo] = useState();
+    const [convoId, setConvoId] = useState<string>('');
     const [userName, setUserName] = useState<string | null>(localStorage.getItem('user'))
 
 
@@ -53,6 +54,14 @@ const Chat = () => {
             setUserName(localStorage.getItem('user'))
         }
     }, [userName])
+
+    useEffect(() => {
+        if (messages.length === 1) {
+            addMessages()
+        } else if (messages.length > 1) {
+            updateMessages(convoId)
+        }
+    }, [messages])
 
 
     useEffect(() => {
@@ -99,12 +108,26 @@ const Chat = () => {
         setMessage("");
     }
 
-    const updateMessages = async () => {
+    const addMessages = async () => {                
         const addMessage = await post({
             url: `http://localhost:3000/api/addMessage`,
             body: {
                 messages: messages,
                 me: localStorage.getItem('user'),
+                users: uniqueUsers?.filter((unq) => unq !== localStorage.getItem('user')),
+            },
+        });
+        setConvoId(addMessage.update.id)
+    };
+
+    const updateMessages = async (id: string) => {
+        debugger
+        const addMessage = await post({
+            url: `http://localhost:3000/api/updateMessages`,
+            body: {
+                messages: messages,
+                me: localStorage.getItem('user'),
+                id,
                 users: uniqueUsers?.filter((unq) => unq !== localStorage.getItem('user')),
             },
         });
@@ -132,7 +155,7 @@ const Chat = () => {
 
 
     return (
-        <IonPage>            
+        <IonPage>
             <IonHeader>
                 <IonToolbar>
                     <div className='flex'>
@@ -140,7 +163,7 @@ const Chat = () => {
                             <IonIcon size='large' icon={returnUpBackOutline}></IonIcon>
                         </IonRouterLink>
                         <div className='centeredInputContainer'>
-                            <IonInput className='inputCenter'  onIonInput={(e) => { setUserName(e?.target.value) }} type='text' placeholder={userName}></IonInput>
+                            <IonInput className='inputCenter' onIonInput={(e) => { setUserName(e?.target.value) }} type='text' placeholder={userName}></IonInput>
                         </div>
                         <IonButton size='small'></IonButton>
                     </div>
@@ -174,7 +197,6 @@ const Chat = () => {
                             onKeyUp={(e) => {
                                 if (e.key === "Enter") {
                                     onSend();
-                                    // updateMessages()
                                 }
                             }}
                             className="something"

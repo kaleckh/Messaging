@@ -25,7 +25,7 @@ ion-input::placeholder{
 .page {
     background-color: rgb(238, 229, 224);
     height: fit-content;
-    min-height: 100%;
+    min-height: 93%;
     display: flex;
     flex-flow: column;
     justify-content: space-between;

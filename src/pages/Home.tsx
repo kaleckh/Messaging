@@ -49,7 +49,7 @@ const Home: React.FC = () => {
   const [messages, setMessages] = useState([])
   const [convos, setConvos] = useState([])
   const [myUsername, setMyUsername] = useState<string>('')
-  const { person, setPerson, getConvos, myConvos } = useContext(MyContext);
+  const { person, setPerson, getConvos, myConvos, deleteConvos } = useContext(MyContext);
 
 
   useEffect(() => {
@@ -64,7 +64,8 @@ const Home: React.FC = () => {
     history.push("/chat/" + topicId);
   }
 
-  console.log(myConvos[0].message, 'these are my convos')
+
+  // console.log(myConvos[0].message, 'these are my convos')
   return (
     <>
       <IonPage>
@@ -81,20 +82,20 @@ const Home: React.FC = () => {
             </IonFabList>
           </IonFab>
         </IonHeader>
-        <IonContent>
-          {/* <div className='space'>
-            {convos.map((convo) =>
-              
-            )}
-          </div> */}
+        <IonContent>        
           <IonList>
-            {myConvos ? <>{myConvos.map((convo, i) => {
+            {myConvos ? <>{myConvos?.map((convo, i) => {
               return (<>
                 <IonCard key={i}>
-                  <IonCardHeader onClick={() => { gotoTopic(convo.id) }}>
-                    <IonCardTitle>{convo.users.join(', ')}</IonCardTitle>
-                  </IonCardHeader>
-                  <IonCardContent>{convo.message[convo.message.length - 1].message}</IonCardContent>
+                  <div className='flexSpace'>
+                    <IonCardHeader onClick={() => { gotoTopic(convo?.id) }}>
+                      <IonCardTitle>{convo?.users.join(', ')}</IonCardTitle>
+                    </IonCardHeader>
+                    <div onClick={() => {
+                      deleteConvos(convo?.id)
+                    }}>X</div>
+                  </div>
+                  <IonCardContent>{convo?.message[convo?.message?.length - 1]?.message}</IonCardContent>
                 </IonCard>
               </>)
             })}</> :

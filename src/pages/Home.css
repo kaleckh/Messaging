@@ -1,50 +1,58 @@
 .input {
     margin: 10px;
-    border-bottom: 1px solid rgb(211, 211, 211);    
+    border-bottom: 1px solid rgb(211, 211, 211);
 }
-.titleContainer{
+
+.titleContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
-.titleContainerBottom{
+
+.titleContainerBottom {
     display: flex;
     justify-content: end;
     flex-direction: column;
     align-items: center;
     height: 55%;
 }
-.title{
+
+.title {
     font-size: 28px;
     font-weight: 600;
 }
-.beginning{
+
+.beginning {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
     width: 75%;
     height: 90px;
 }
-.beginning{
+
+.beginning {
     display: flex;
     /* flex-direction: column;
     justify-content: space-evenly;
     width: 75%;
     height: 90px; */
 }
-.grayLetters{
+
+.grayLetters {
     color: gray;
     letter-spacing: .8px;
     font-weight: 400;
 }
-.grayLettersFlex{
+
+.grayLettersFlex {
     display: flex;
     padding-left: 5px;
     color: gray;
     letter-spacing: .8px;
     font-weight: 400;
 }
-.inputContainer{
+
+.inputContainer {
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -52,19 +60,30 @@
     align-items: center;
     height: 150px;
 }
-.eighty{
-    width: 80%;    
+
+.eighty {
+    width: 80%;
     display: flex;
 }
-.login{
+
+.login {
     margin: 15px;
 }
-.largeBottom{
+
+.largeBottom {
     padding-left: 5px;
     color: rgb(106, 106, 225);
 }
-.loginButton{
+
+.loginButton {
     display: flex;
     justify-content: end;
+    width: 95%;
+}
+
+.flexSpace {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     width: 95%;
 }
