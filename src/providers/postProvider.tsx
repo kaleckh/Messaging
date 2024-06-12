@@ -12,17 +12,17 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
   const [convoId, setConvoId] = useState([])
 
 
-  const addMessages = async () => {
-    const addMessage = await post({
-      url: `http://localhost:3000/api/addMessage`,
-      body: {
-        messages: messages,
-        me: localStorage.getItem('user'),
-        users: uniqueUsers?.filter((unq) => unq !== localStorage.getItem('user')),
-      },
-    });
-    setConvoId(addMessage.update.id)
-  };
+  // const addMessages = async () => {
+  //   const addMessage = await post({
+  //     url: `http://localhost:3000/api/addMessage`,
+  //     body: {
+  //       messages: messages,
+  //       me: localStorage.getItem('user'),
+  //       users: uniqueUsers?.filter((unq) => unq !== localStorage.getItem('user')),
+  //     },
+  //   });
+  //   setConvoId(addMessage.update.id)
+  // };
 
   const getConvos = async () => {
     try {
@@ -60,7 +60,7 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
       );
       const thisConvo = await convos.json();
       console.log(thisConvo.update, 'this is deleting the convo')
-      // setMyConvos(thisConvo)
+      getConvos()
     } catch (error) {
       console.log(error, "this is the create user error");
     }

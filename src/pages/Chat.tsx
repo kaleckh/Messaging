@@ -42,7 +42,7 @@ const Chat = () => {
         }[]
     >([]);
     const channel = useRef<RealtimeChannel | null>(null);
-    const { myUsername, person, setPerson } = useContext(MyContext);
+    const { myUsername, person, setPerson, getConvos } = useContext(MyContext);
     const [uniqueUsers, setUniqueUsers] = useState();
     const [myConvo, setMyConvo] = useState();
     const [convoId, setConvoId] = useState<string>('');
@@ -118,6 +118,8 @@ const Chat = () => {
             },
         });
         setConvoId(addMessage.update.id)
+        console.log(addMessage.update, 'this is adding a message')
+        getConvos()
     };
 
     const updateMessages = async (id: string) => {
@@ -135,23 +137,23 @@ const Chat = () => {
     };
 
 
-    const getConvos = async () => {
-        try {
-            const convos = await fetch(
-                `http://localhost:3000/api/getConvo?`,
-                {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                },
-            );
-            const thisConvo = await convos.json();
-            setMessages(thisConvo.Posts.message)
-        } catch (error) {
-            console.log(error, "this is the create user error");
-        }
-    };
+    // const getConvos = async () => {
+    //     try {
+    //         const convos = await fetch(
+    //             `http://localhost:3000/api/getConvo?`,
+    //             {
+    //                 method: "GET",
+    //                 headers: {
+    //                     "Content-Type": "application/json",
+    //                 },
+    //             },
+    //         );
+    //         const thisConvo = await convos.json();
+    //         setMessages(thisConvo.Posts.message)
+    //     } catch (error) {
+    //         console.log(error, "this is the create user error");
+    //     }
+    // };
 
 
     return (
