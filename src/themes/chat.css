@@ -25,6 +25,13 @@
     flex-flow: column;
     justify-content: space-between;
 }
+.freshPage {
+    background-color: rgb(238, 229, 224);
+    height: 93%;
+    display: flex;
+    flex-flow: column;
+    justify-content: space-between;
+}
 
 .blue {
     background-color: rgb(92, 162, 233);

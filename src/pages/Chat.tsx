@@ -42,7 +42,7 @@ const Chat = () => {
         }[]
     >([]);
     const channel = useRef<RealtimeChannel | null>(null);
-    const { myUsername, person, setPerson, getConvos } = useContext(MyContext);
+    const { myUsername, person, setPerson, getConvos, updateMessages } = useContext(MyContext);
     const [uniqueUsers, setUniqueUsers] = useState();
     const [myConvo, setMyConvo] = useState();
     const [convoId, setConvoId] = useState<string>('');
@@ -59,7 +59,14 @@ const Chat = () => {
         if (messages.length === 1) {
             addMessages()
         } else if (messages.length > 1) {
-            updateMessages(convoId)
+            let users = messages.map((msg) => { return msg.userName })
+            let uniq = [...new Set(users)];
+            let nameToRemove = localStorage.getItem('user');
+            let array = uniq.filter(item => item !== nameToRemove);
+            setUniqueUsers(array)
+            console.log(array)
+            console.log(uniqueUsers)            
+            updateMessages(convoId, messages, array)
         }
     }, [messages])
 
@@ -90,14 +97,6 @@ const Chat = () => {
     }, []);
 
 
-    useEffect(() => {
-        let users = messages.map((msg) => { return msg.userName })
-        let uniq = [...new Set(users)];
-        setUniqueUsers(uniq)
-    }, [messages])
-
-
-
     function onSend() {
         if (!channel.current || message.trim().length === 0) return;
         channel.current.send({
@@ -108,7 +107,7 @@ const Chat = () => {
         setMessage("");
     }
 
-    const addMessages = async () => {                
+    const addMessages = async () => {
         const addMessage = await post({
             url: `http://localhost:3000/api/addMessage`,
             body: {
@@ -122,19 +121,22 @@ const Chat = () => {
         getConvos()
     };
 
-    const updateMessages = async (id: string) => {
-        debugger
-        const addMessage = await post({
-            url: `http://localhost:3000/api/updateMessages`,
-            body: {
-                messages: messages,
-                me: localStorage.getItem('user'),
-                id,
-                users: uniqueUsers?.filter((unq) => unq !== localStorage.getItem('user')),
-            },
-        });
-        console.log(addMessage, 'add it')
-    };
+    const handleRefresh = () => {
+        getConvos()
+    }
+
+    // const updateMessages = async (id: string) => {
+    //     const addMessage = await post({
+    //         url: `http://localhost:3000/api/updateMessages`,
+    //         body: {
+    //             messages: messages,
+    //             me: localStorage.getItem('user'),
+    //             id,
+    //             users: uniqueUsers?.filter((unq) => unq !== localStorage.getItem('user')),
+    //         },
+    //     });
+    //     handleRefresh()
+    // };
 
 
     // const getConvos = async () => {
@@ -161,7 +163,7 @@ const Chat = () => {
             <IonHeader>
                 <IonToolbar>
                     <div className='flex'>
-                        <IonRouterLink routerLink="/home" routerDirection="back">
+                        <IonRouterLink onClick={() => {updateMessages(convoId, messages, uniqueUsers)}} routerLink="/home" routerDirection="back">
                             <IonIcon size='large' icon={returnUpBackOutline}></IonIcon>
                         </IonRouterLink>
                         <div className='centeredInputContainer'>
@@ -171,7 +173,7 @@ const Chat = () => {
                     </div>
                 </IonToolbar>
             </IonHeader>
-            <div className='page'>
+            <div className='freshPage'>
                 <div className="column">
                     {messages?.map((msg, i) => (
                         <div

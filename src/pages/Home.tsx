@@ -65,7 +65,7 @@ const Home: React.FC = () => {
   }
 
 
-  // console.log(myConvos[0].message, 'these are my convos')
+  console.log(myConvos, 'these are my convos')
   return (
     <>
       <IonPage>
@@ -95,7 +95,7 @@ const Home: React.FC = () => {
                       deleteConvos(convo?.id)
                     }}>X</div>
                   </div>
-                  <IonCardContent>{convo?.message[convo?.message?.length - 1]?.message}</IonCardContent>
+                  <IonCardContent onClick={() => { gotoTopic(convo?.id)}}>{convo?.message[convo?.message?.length - 1]?.message}</IonCardContent>
                 </IonCard>
               </>)
             })}</> :
@@ -105,7 +105,7 @@ const Home: React.FC = () => {
             <div>Create A Conversation</div>
             <IonRouterLink routerLink="/newChat" routerDirection="forward">
               <IonIcon size='large' icon={addOutline}></IonIcon>
-            </IonRouterLink>
+            </IonRouterLink>            
           </div>
           {/* <IonButton onClick={() => { getConvos() }}>Get Convos</IonButton> */}
         </IonContent>

@@ -3,7 +3,7 @@ import { post } from "../utils";
 
 
 // const MyContext = createContext({ values: [], setValues: (posts) => { } });
-const MyContext = createContext({ myUsername: localStorage.getItem('user'), setMyUsername: (value: string) => { }, person: '', setPerson: (value: string) => { }, myConvos: [], getConvos: () => { }, deleteConvos: (id: string) => { } });
+const MyContext = createContext({ myUsername: localStorage.getItem('user'), setMyUsername: (value: string) => { }, person: '', setPerson: (value: string) => { }, myConvos: [], getConvos: () => { }, deleteConvos: (id: string) => { }, updateMessages: (id: string, messages: {}[], users: []) => { } });
 
 const ContextProvider = ({ children }: { children: ReactNode }) => {
   const [myUsername, setMyUsername] = useState<string | null>(localStorage.getItem('user'))
@@ -43,6 +43,20 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // const addMessages = async (id: string, messages: {}[], users: []) => {
+  //   const addMessage = await post({
+  //     url: `http://localhost:3000/api/addMessage`,
+  //     body: {
+  //       messages: messages,
+  //       me: localStorage.getItem('user'),
+  //       users
+  //     },
+  //   });
+  //   setConvoId(addMessage.update.id)
+  //   console.log(addMessage.update, 'this is adding a message')
+  //   getConvos()
+  // };
+
 
   const deleteConvos = async (id: string) => {
     try {
@@ -67,8 +81,24 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
   };
 
 
+  const updateMessages = async (id: string, messages: {}[], users: []) => {
+    console.log('shit might be working', id, users, messages)
+    const addMessage = await post({
+      url: `http://localhost:3000/api/updateMessages`,
+      body: {
+        messages: messages,
+        me: localStorage.getItem('user'),
+        id,
+        users
+      },
+    });
+    getConvos()
+  };
+
+
+
   return (
-    <MyContext.Provider value={{ myUsername, setMyUsername, person, setPerson, myConvos, getConvos, deleteConvos }}>
+    <MyContext.Provider value={{ myUsername, setMyUsername, person, setPerson, myConvos, getConvos, deleteConvos, updateMessages }}>
       {children}
     </MyContext.Provider>
   );

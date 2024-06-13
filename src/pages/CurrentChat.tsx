@@ -45,9 +45,10 @@ const CurrentChat = () => {
         }[]
     >([]);
     const channel = useRef<RealtimeChannel | null>(null);
-    const { myUsername, person, setPerson } = useContext(MyContext);
+    const { myUsername, person, setPerson, updateMessages } = useContext(MyContext);
     const [uniqueUsers, setUniqueUsers] = useState();
     const [myConvo, setMyConvo] = useState();
+    const [info, setInfo] = useState<{ id: string, users: [], me: string, message: { userName: string, message: string }[] }>();
     const [userName, setUserName] = useState<string | null>(localStorage.getItem('user'))
     const { topic_id } = useParams<{ topic_id: string }>();
 
@@ -79,21 +80,30 @@ const CurrentChat = () => {
         };
     }, []);
 
-    useEffect(() => {
-        if (userName === '') {
-            setUserName(localStorage.getItem('user'))
-        }
-    }, [userName])
+    // useEffect(() => {
+    //     if (userName === '') {
+    //         setUserName(localStorage.getItem('user'))
+    //     }
+    // }, [userName])
 
     useEffect(() => {
         let users = messages.map((msg) => { return msg.userName })
         let uniq = [...new Set(users)];
-        setUniqueUsers(uniq)
+        let nameToRemove = localStorage.getItem('user');
+        let array = uniq.filter(item => item !== nameToRemove);        
+        setUniqueUsers(array)
+        console.log(uniqueUsers)
+        if (messages.length > 0) {
+            updateMessages(topic_id, messages, uniqueUsers)
+        }
+
     }, [messages])
 
     useEffect(() => {
         getConvos()
     }, [])
+
+
 
     function onSend() {
         if (!channel.current || message.trim().length === 0) return;
@@ -105,30 +115,19 @@ const CurrentChat = () => {
         setMessage("");
     }
 
-    const addMessage = async () => {
-        const addMessage = await post({
-            url: `http://localhost:3000/api/addMessage`,
-            body: {
-                messages: messages,
-                me: localStorage.getItem('user'),
-                users: uniqueUsers?.filter((unq) => unq !== localStorage.getItem('user')),
-            },
-        });
-        console.log(addMessage, 'add it')
-    };
-
-    const updateMessages = async () => {
-        const addMessage = await post({
-            url: `http://localhost:3000/api/updateMessages`,
-            body: {
-                messages: messages,
-                me: localStorage.getItem('user'),
-                id: topic_id,
-                users: uniqueUsers?.filter((unq) => unq !== localStorage.getItem('user')),
-            },
-        });
-        console.log(addMessage, 'add it')
-    };
+    // const updateMessages = async () => {
+    //     const addMessage = await post({
+    //         url: `http://localhost:3000/api/updateMessages`,
+    //         body: {
+    //             messages: messages,
+    //             me: localStorage.getItem('user'),
+    //             id: topic_id,
+    //             users: uniqueUsers?.filter((unq) => unq !== localStorage.getItem('user')),
+    //         },
+    //     });
+    //     console.log(addMessage, 'add it')
+    //     getConvos()
+    // };
 
 
     const getConvos = async () => {
@@ -144,21 +143,22 @@ const CurrentChat = () => {
             );
             const thisConvo = await convos.json();
             setMessages(thisConvo.Posts.message)
+            setInfo(thisConvo.Posts)
         } catch (error) {
             console.log(error, "this is the create user error");
         }
     };
 
 
-    console.log(uniqueUsers, 'these are unique users`')
+
+    console.log(info, 'these is the info`')
 
     return (
         <IonPage>
-
             <IonHeader>
                 <IonToolbar>
                     <div className='flex'>
-                        <IonRouterLink routerLink="/home" routerDirection="back" onClick={() => { updateMessages() }}>
+                        <IonRouterLink routerLink="/home" routerDirection="back" onClick={() => { updateMessages(topic_id, messages, uniqueUsers) }}>
                             <IonIcon size='large' icon={returnUpBackOutline}></IonIcon>
                         </IonRouterLink>
                         <div className='centeredInputContainer'>
@@ -200,7 +200,7 @@ const CurrentChat = () => {
                         onKeyUp={(e) => {
                             if (e.key === "Enter") {
                                 onSend();
-                                updateMessages()
+                                updateMessages(topic_id, messages, info?.users)
                             }
                         }}
                         className="something"
