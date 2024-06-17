@@ -1,0 +1,119 @@
+$z1: 999;
+$z2: 1;
+$bodyBgColor: #1d1d1d;
+$bgColor: #010002;
+$textPriColor: #fbfbfd;
+$textSecColor: #868487;
+$searchBarBgColor: #1e1c21;
+$searchBarTextColor: #8c8a8f;
+$messageBorderHeight: 2px;
+$messageBorderColor: #1a1a1c;
+$deleteBtnBgColor: #ff453d;
+
+*,
+*:before,
+*:after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: $bodyBgColor;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.screen {
+  height: 812px;
+  width: 375px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  background-color: $bgColor;
+  color: $textPriColor;
+}
+
+header {
+  h1 {
+    margin-bottom: 7px;
+  }
+}
+
+input {
+  width: 100%;
+  outline: none;
+  border: none;
+  padding: 7px;
+  border-radius: 7px;
+  background-color: $searchBarBgColor;
+  font-size: 16px;
+}
+
+::placeholder {
+  color: $searchBarTextColor;
+}
+
+ul {
+  margin-top: 11px;
+  list-style: none;
+
+  li {
+    position: relative;
+    
+
+    .delete-btn {
+      z-index: $z2;
+      color: white;
+      position: absolute;
+      height: calc(100% - 2px);
+      width: 70px;
+      top: 50%;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transform: translateY(-50%);
+      background-color: $deleteBtnBgColor;
+    }
+  }
+  li:not(:last-child) {
+    border-bottom: 1px solid rgb(240, 232, 232);  
+  }
+
+  .msg-container {
+    position: relative;
+    z-index: $z1;
+    display: flex;
+    align-items: center;
+    background-color: white;
+
+    &:hover {
+      cursor: pointer;
+    }
+
+    .user-icon {
+      display: block;
+      height: 40px;
+      width: 40px;
+      object-fit: cover;
+      object-position: top;
+      border-radius: 100%;
+      pointer-events: none;
+    }
+
+    .message-text {
+      flex: 1;
+      margin-left: 12px;
+      padding: 8px 0;
+
+      p {
+        text-transform: capitalize;
+        font-size: 14px;
+        color: $textSecColor;
+      }
+    }
+  }
+}

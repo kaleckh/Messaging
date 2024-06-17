@@ -1,16 +1,25 @@
 import { createContext, useState, ReactNode, useEffect } from "react";
 import { post } from "../utils";
 
-
 // const MyContext = createContext({ values: [], setValues: (posts) => { } });
-const MyContext = createContext({ myUsername: localStorage.getItem('user'), setMyUsername: (value: string) => { }, person: '', setPerson: (value: string) => { }, myConvos: [], getConvos: () => { }, deleteConvos: (id: string) => { }, updateMessages: (id: string, messages: {}[], users: []) => { } });
+const MyContext = createContext({
+  myUsername: localStorage.getItem("user"),
+  setMyUsername: (value: string) => {},
+  person: "",
+  setPerson: (value: string) => {},
+  myConvos: [],
+  getConvos: () => {},
+  deleteConvos: (id: string) => {},
+  updateMessages: (id: string, messages: {}[], users: []) => {},
+});
 
 const ContextProvider = ({ children }: { children: ReactNode }) => {
-  const [myUsername, setMyUsername] = useState<string | null>(localStorage.getItem('user'))
-  const [person, setPerson] = useState('')
-  const [myConvos, setMyConvos] = useState([])
-  const [convoId, setConvoId] = useState([])
-
+  const [myUsername, setMyUsername] = useState<string | null>(
+    localStorage.getItem("user"),
+  );
+  const [person, setPerson] = useState("");
+  const [myConvos, setMyConvos] = useState([]);
+  const [convoId, setConvoId] = useState([]);
 
   // const addMessages = async () => {
   //   const addMessage = await post({
@@ -36,7 +45,7 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
         },
       );
       const userInfo = await convos.json();
-      setMyConvos(userInfo.Posts)
+      setMyConvos(userInfo.Posts);
       console.log(userInfo.Posts, "this is convo response");
     } catch (error) {
       console.log(error, "this is the create user error");
@@ -57,48 +66,52 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
   //   getConvos()
   // };
 
-
-  const deleteConvos = async (id: string) => {
+  const deleteConvos = async (id: string) => { 
     try {
-      const convos = await fetch(
-        `http://localhost:3000/api/deleteConvo`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            id: id
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
+      const convos = await fetch(`http://localhost:3000/api/deleteConvo`, {
+        method: "POST",
+        body: JSON.stringify({
+          id: id,
+        }),
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+      });
       const thisConvo = await convos.json();
-      console.log(thisConvo.update, 'this is deleting the convo')
-      getConvos()
+      console.log(thisConvo.update, "this is deleting the convo");
+      getConvos();
     } catch (error) {
       console.log(error, "this is the create user error");
     }
   };
 
-
   const updateMessages = async (id: string, messages: {}[], users: []) => {
-    console.log('shit might be working', id, users, messages)
+    console.log("shit might be working", id, users, messages);
     const addMessage = await post({
       url: `http://localhost:3000/api/updateMessages`,
       body: {
         messages: messages,
-        me: localStorage.getItem('user'),
+        me: localStorage.getItem("user"),
         id,
-        users
+        users,
       },
     });
-    getConvos()
+    getConvos();
   };
 
-
-
   return (
-    <MyContext.Provider value={{ myUsername, setMyUsername, person, setPerson, myConvos, getConvos, deleteConvos, updateMessages }}>
+    <MyContext.Provider
+      value={{
+        myUsername,
+        setMyUsername,
+        person,
+        setPerson,
+        myConvos,
+        getConvos,
+        deleteConvos,
+        updateMessages,
+      }}
+    >
       {children}
     </MyContext.Provider>
   );

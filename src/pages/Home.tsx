@@ -18,7 +18,10 @@ import { post } from '../utils';
 import {
   IonContent,
   useIonRouter,
+  IonButtons,
+  IonMenuButton,
   IonIcon,
+  IonMenu,
   IonCard,
   IonHeader,
   IonInput,
@@ -42,6 +45,17 @@ import {
 import './Home.css';
 import { MyContext } from '../providers/postProvider';
 import { useHistory } from 'react-router';
+import SwiperCore from 'swiper';
+import { trash } from 'ionicons/icons';
+import { Navigation, Pagination, FreeMode } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import '../themes/swiper.css';
+import './Home.css';
+import { motion, AnimatePresence } from "framer-motion"
+import '../themes/test.css'
+import "../themes/styles.scss"
+
+SwiperCore.use([Pagination]);
 
 const Home: React.FC = () => {
   const router = useIonRouter();
@@ -50,11 +64,27 @@ const Home: React.FC = () => {
   const [convos, setConvos] = useState([])
   const [myUsername, setMyUsername] = useState<string>('')
   const { person, setPerson, getConvos, myConvos, deleteConvos } = useContext(MyContext);
+  const [visibleCards, setVisibleCards] = useState<boolean[]>([])
+
+  const DELETE_BTN_WIDTH = 70
+
+  const MESSAGE_DELETE_ANIMATION = { height: 0, opacity: 0 }
+  const MESSAGE_DELETE_TRANSITION = {
+    opacity: {
+      transition: {
+        duration: 0
+      }
+    }
+  }
 
 
   useEffect(() => {
     getConvos()
   }, [])
+
+  useEffect(() => {
+    setVisibleCards(myConvos?.map((card) => { return true }))
+  }, [myConvos])
 
   const handleNavigation = () => {
     router.push('/home', 'forward');
@@ -64,50 +94,72 @@ const Home: React.FC = () => {
     history.push("/chat/" + topicId);
   }
 
+  const handleSlideChange = (swiper: any, index: number) => {
+    if (swiper.activeIndex === 1) {
+      console.log(`Slide ${index + 1} is in view`);
+      // Run your specific function here
+    }
+  };
 
-  console.log(myConvos, 'these are my convos')
+
+  const handleDragEnd = (info, messageId: string) => {
+
+    const dragDistance = info.point.x
+    if (dragDistance < -DELETE_BTN_WIDTH) {
+      // setMessagesList(messagesList.filter(message => message.id !== messageId))
+      deleteConvos(messageId)
+    }
+  }
+
+
+  console.log(myConvos, 'these are conbos')
+
   return (
-    <>
+    <>      
       <IonPage>
         <IonHeader>
-          <IonToolbar class='ion-text-center'>
+          <IonToolbar class='ion-text-center'>            
             <IonTitle>{localStorage.getItem('user')}</IonTitle>
           </IonToolbar>
-          <IonFab horizontal='end' vertical='top'>
-            <IonFabButton size='small'>
-              <IonIcon size='small' name="add"></IonIcon>
-            </IonFabButton>
-            <IonFabList side='bottom'>
-              <IonFabButton>Logout</IonFabButton>
-            </IonFabList>
-          </IonFab>
         </IonHeader>
-        <IonContent>        
-          <IonList>
-            {myConvos ? <>{myConvos?.map((convo, i) => {
-              return (<>
-                <IonCard key={i}>
-                  <div className='flexSpace'>
-                    <IonCardHeader onClick={() => { gotoTopic(convo?.id) }}>
-                      <IonCardTitle>{convo?.users.join(', ')}</IonCardTitle>
-                    </IonCardHeader>
-                    <div onClick={() => {
-                      deleteConvos(convo?.id)
-                    }}>X</div>
-                  </div>
-                  <IonCardContent onClick={() => { gotoTopic(convo?.id)}}>{convo?.message[convo?.message?.length - 1]?.message}</IonCardContent>
-                </IonCard>
-              </>)
-            })}</> :
-              <><div>Write a message</div></>}
-          </IonList>
+        <IonContent>
+          <ul>
+            <AnimatePresence>
+              {myConvos?.map((convo, i) => (
+                <motion.li
+                  key={convo.id}
+                  exit={MESSAGE_DELETE_ANIMATION}
+                  transition={MESSAGE_DELETE_TRANSITION}
+                >
+                  <motion.div
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    onDragEnd={(_, info) => handleDragEnd(info, convo?.id)}
+                    className="msg-container"
+                  >
+                    <img
+                      style={{ marginLeft: '10px' }}
+                      className="user-icon"
+                      src={"https://ionicframework.com/docs/img/demos/avatar.svg"}
+                      alt="User icon"
+                    />
+
+                    <div onClick={() => gotoTopic(convo?.id)} className="message-text">
+                      <div className='Title'>{convo.users.length > 2 ? convo?.users.join(', ') : convo?.users}</div>
+                      <div className='graySub'>{convo?.message[convo?.message?.length - 1]?.message}</div>
+                    </div>
+                  </motion.div>
+                  <div className="delete-btn">Delete</div>
+                </motion.li>
+              ))}
+            </AnimatePresence>
+          </ul>
           <div className='center'>
             <div>Create A Conversation</div>
             <IonRouterLink routerLink="/newChat" routerDirection="forward">
               <IonIcon size='large' icon={addOutline}></IonIcon>
-            </IonRouterLink>            
+            </IonRouterLink>
           </div>
-          {/* <IonButton onClick={() => { getConvos() }}>Get Convos</IonButton> */}
         </IonContent>
       </IonPage>
     </>
