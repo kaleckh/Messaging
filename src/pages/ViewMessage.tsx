@@ -16,6 +16,8 @@ import {
 import { personCircle } from "ionicons/icons";
 import { useParams } from "react-router";
 import "./ViewMessage.css";
+import { MyContext } from "../providers/postProvider";
+
 
 function ViewMessage() {
   const [message, setMessage] = useState<Message>();

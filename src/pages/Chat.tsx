@@ -52,6 +52,7 @@ const Chat = () => {
     {
       userName: string;
       message: string;
+      date: Date
     }[]
   >([]);
   const channel = useRef<RealtimeChannel | null>(null);
@@ -59,17 +60,20 @@ const Chat = () => {
     useContext(MyContext);
   const [uniqueUsers, setUniqueUsers] = useState();
   const [myConvo, setMyConvo] = useState();
+  const [recipient, setRecipient] = useState();
   const [convoId, setConvoId] = useState<string>("");
-  const [userName, setUserName] = useState<string | null>("");
-  const [roomName, setRoomName] = useState<string>(
-    `${localStorage.getItem("user")}${userName}`,
-  );
+  const [userName, setUserName] = useState<string | null>(myUsername);
+  const [roomName, setRoomName] = useState<string>('');
 
   // useEffect(() => {
   //     if (userName === '') {
   //         setUserName(localStorage.getItem('user'))
   //     }
   // }, [userName])
+
+  useEffect(() => {
+    setRoomName(`${localStorage.getItem("user")}${recipient}`)
+  }, [roomName])
 
   useEffect(() => {
     if (messages.length === 1) {
@@ -101,6 +105,7 @@ const Chat = () => {
 
       channel.current
         .on("broadcast", { event: "message" }, ({ payload }) => {
+          payload.message.date = new Date()
           setMessages((prev) => [...prev, payload.message]);
         })
         .subscribe();
@@ -133,11 +138,12 @@ const Chat = () => {
         users: uniqueUsers?.filter(
           (unq) => unq !== localStorage.getItem("user"),
         ),
-        roomName: `${localStorage.getItem("user")}${userName}`,
+        roomName: `${localStorage.getItem("user")}${recipient}`,
+        recipient
       },
     });
+    console.log(addMessage, 'this si what i need now')
     setConvoId(addMessage.update.id);
-    console.log(addMessage.update, "this is adding a message");
     getConvos();
   };
 
@@ -158,26 +164,31 @@ const Chat = () => {
   //     handleRefresh()
   // };
 
-  // const getConvos = async () => {
-  //     try {
-  //         const convos = await fetch(
-  //             `http://localhost:3000/api/getConvo?`,
-  //             {
-  //                 method: "GET",
-  //                 headers: {
-  //                     "Content-Type": "application/json",
-  //                 },
-  //             },
-  //         );
-  //         const thisConvo = await convos.json();
-  //         setMessages(thisConvo.Posts.message)
-  //     } catch (error) {
-  //         console.log(error, "this is the create user error");
-  //     }
-  // };
 
-  // console.log(`${localStorage.getItem('user')}${userName}`, 'userName')
-  // console.log(userName)
+  useEffect(() => {
+    getConvo();
+  }, []);
+
+  const getConvo = async () => {
+    try {
+      const convos = await fetch(
+        `http://localhost:3000/api/getConvo?id=${convoId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      const thisConvo = await convos.json();
+      setRecipient(thisConvo.Posts.recipient)
+      console.log(thisConvo, 'tjos os tje cppv')
+    } catch (error) {
+      console.log(error, "this is the create user error");
+    }
+  };
+
+
   return (
     <IonPage>
       <IonHeader>
@@ -196,39 +207,39 @@ const Chat = () => {
               <IonInput
                 className="inputCenter"
                 onIonInput={(e) => {
-                  setUserName(e?.target.value);
+                  setRecipient(e?.target.value);
                 }}
                 type="text"
-                placeholder={"who to?"}
+                placeholder={recipient ? recipient : 'who to?'}
               ></IonInput>
             </div>
-            <IonButton size="small"></IonButton>
+            <div></div>
           </div>
         </IonToolbar>
       </IonHeader>
       <div className="freshPage">
         <div className="column">
-          {messages?.map((msg, i) => (
+          {messages?.map((msg, i) =>
+          (
             <div
               key={i}
-              className={` ${userName === msg.userName ? "end" : "start"}`}
+              className={` ${myUsername === msg.userName ? "end" : "start"}`}
             >
               <div
-                className={`${userName === msg.userName ? "centerEnd" : "centerBeginning"}`}
+                className={`${myUsername === msg.userName ? "centerEnd" : "centerBeginning"}`}
               >
                 <div
-                  className={`${userName === msg.userName ? "blueEnd" : "grayEnd"}`}
+                  className={`${myUsername === msg.userName ? "blueEnd" : "grayEnd"}`}
                 >
                   {messages[i - 1]?.userName === msg.userName ? (
-                    <>{}</>
+                    <>{ }</>
                   ) : (
                     <div className="user">{msg.userName}</div>
                   )}
                 </div>
                 <div
-                  className={`message ${
-                    userName === msg.userName ? "blue" : "gray"
-                  } `}
+                  className={`message ${myUsername === msg.userName ? "blue" : "gray"
+                    } `}
                 >
                   {msg.message}
                 </div>
@@ -263,17 +274,12 @@ const Chat = () => {
             >
               <IonIcon icon={sendOutline}></IonIcon>
             </IonButton>
-            <IonButton
-              onClick={() => {
-                console.log(roomName);
-              }}
-              size="small"
-            ></IonButton>
           </div>
         </div>
       </div>
     </IonPage>
   );
 };
+
 
 export default Chat;

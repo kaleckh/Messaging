@@ -55,6 +55,7 @@ const CurrentChat = () => {
     }[]
   >([]);
   const channel = useRef<RealtimeChannel | null>(null);
+  const { topic_id } = useParams<{ topic_id: string }>();
   const { myUsername, person, setPerson, updateMessages } =
     useContext(MyContext);
   const [uniqueUsers, setUniqueUsers] = useState();
@@ -68,13 +69,19 @@ const CurrentChat = () => {
   const [userName, setUserName] = useState<string | null>(
     localStorage.getItem("user"),
   );
-  const { topic_id } = useParams<{ topic_id: string }>();
+  const [roomName, setRoomName] = useState<string>(
+    `${localStorage.getItem("user")}${userName}`,
+  );
+
+
 
   useEffect(() => {
     if (userName === "") {
       setUserName(localStorage.getItem("user"));
     }
   }, [userName]);
+
+
 
   useEffect(() => {
     if (!channel.current) {
@@ -87,7 +94,8 @@ const CurrentChat = () => {
         },
       });
       channel.current
-        .on("broadcast", { event: "message" }, ({ payload }) => {
+        .on("broadcast", { event: "message" }, ({ payload }) => {          
+          payload.message.date = new Date()
           setMessages((prev) => [...prev, payload.message]);
         })
         .subscribe();
@@ -165,7 +173,7 @@ const CurrentChat = () => {
     }
   };
 
-  console.log(info, "these is the info`");
+  console.log(info, 'this is a username')
 
   return (
     <IonPage>
@@ -182,16 +190,17 @@ const CurrentChat = () => {
               <IonIcon size="large" icon={returnUpBackOutline}></IonIcon>
             </IonRouterLink>
             <div className="centeredInputContainer">
-              <IonInput
+              {/* <IonInput
                 className="inputCenter"
                 onIonInput={(e) => {
                   setUserName(e?.target.value);
                 }}
                 type="text"
-                placeholder={userName}
-              ></IonInput>
+                placeholder={info?.recipient}
+              ></IonInput> */}
+              <IonTitle>{localStorage.getItem('user') === info?.me ? info?.recipient : info?.me}</IonTitle>
             </div>
-            <IonButton>Save</IonButton>
+            <div></div>
           </div>
         </IonToolbar>
       </IonHeader>
@@ -210,15 +219,14 @@ const CurrentChat = () => {
                     className={`${userName === msg.userName ? "blueEnd" : "grayEnd"}`}
                   >
                     {messages[i - 1]?.userName === msg.userName ? (
-                      <>{}</>
+                      <>{ }</>
                     ) : (
                       <div className="user">{msg.userName}</div>
                     )}
                   </div>
                   <div
-                    className={`message ${
-                      userName === msg.userName ? "blue" : "gray"
-                    } `}
+                    className={`message ${userName === msg.userName ? "blue" : "gray"
+                      } `}
                   >
                     {msg.message}
                   </div>

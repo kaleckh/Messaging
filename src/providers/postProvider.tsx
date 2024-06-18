@@ -4,13 +4,13 @@ import { post } from "../utils";
 // const MyContext = createContext({ values: [], setValues: (posts) => { } });
 const MyContext = createContext({
   myUsername: localStorage.getItem("user"),
-  setMyUsername: (value: string) => {},
+  setMyUsername: (value: string) => { },
   person: "",
-  setPerson: (value: string) => {},
+  setPerson: (value: string) => { },
   myConvos: [],
-  getConvos: () => {},
-  deleteConvos: (id: string) => {},
-  updateMessages: (id: string, messages: {}[], users: []) => {},
+  getConvos: () => { },
+  deleteConvos: (id: string) => { },
+  updateMessages: (id: string, messages: {}[], users: []) => { },
 });
 
 const ContextProvider = ({ children }: { children: ReactNode }) => {
@@ -66,7 +66,7 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
   //   getConvos()
   // };
 
-  const deleteConvos = async (id: string) => { 
+  const deleteConvos = async (id: string) => {
     try {
       const convos = await fetch(`http://localhost:3000/api/deleteConvo`, {
         method: "POST",
@@ -85,7 +85,7 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const updateMessages = async (id: string, messages: {}[], users: []) => {
+  const updateMessages = async (id: string, messages: {}[], users: [], date: Date) => {
     console.log("shit might be working", id, users, messages);
     const addMessage = await post({
       url: `http://localhost:3000/api/updateMessages`,
@@ -93,7 +93,7 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
         messages: messages,
         me: localStorage.getItem("user"),
         id,
-        users,
+        users
       },
     });
     getConvos();

@@ -17,6 +17,13 @@
   height: 55%;
 }
 
+.centerButton{
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  height: 90%;
+}
+
 .title {
   font-size: 28px;
   font-weight: 600;

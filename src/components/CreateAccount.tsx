@@ -16,6 +16,7 @@ import {
   useIonToast,
   useIonLoading,
 } from "@ionic/react";
+import { useHistory } from 'react-router';
 
 const CreateAccount = ({ setToggle }: { setToggle: () => void }) => {
   const [content, setContent] = useState<{ hello: [] }>();
@@ -23,16 +24,17 @@ const CreateAccount = ({ setToggle }: { setToggle: () => void }) => {
   const [userEmail, setUserEmail] = useState<any>(localStorage.getItem("user"));
   const [password, setPassword] = useState<string>("");
   const [username, setUsername] = useState<string>("");
+  const history = useHistory();
   const [value, setValue] = useState(
     "<p>here is my values this is for a test</p><p><br></p><p>																																									this should go in the middle</p><p>idk about thiks one </p><p><br></p><p><br></p><p>lets see what happens</p><p><br></p><h1>this is a big header</h1>",
   );
 
   const handleSignUp = async () => {
     try {
-      // const { data, error } = await supabase.auth.signUp({
-      //     email: email,
-      //     password: password,
-      // })
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+      })
       const result = await fetch(`http://localhost:3000/api/createUser`, {
         method: "POST",
         headers: {
@@ -43,7 +45,8 @@ const CreateAccount = ({ setToggle }: { setToggle: () => void }) => {
           email: email,
         }),
       });
-      console.log(result, "this is the responose to making a user in the db");
+      localStorage.setItem('user',email)
+      history.push("/home");      
     } catch (error) {
       console.log(error);
     }
@@ -97,27 +100,27 @@ const CreateAccount = ({ setToggle }: { setToggle: () => void }) => {
         </div>
       </div>
       <div className="inputContainer">
-        <div className="eighty">
+        <IonItem className="eighty">
           <IonInput
             className="input"
-            value={email}
+
             placeholder="Username"
             name="username"
             onIonChange={(e) => setUsername(e.detail.value ?? "")}
             type="email"
           ></IonInput>
-        </div>
-        <div className="eighty">
+        </IonItem>
+        <IonItem className="eighty">
           <IonInput
             className="input"
-            value={email}
+
             placeholder="email"
             name="email"
             onIonChange={(e) => setEmail(e.detail.value ?? "")}
             type="email"
           ></IonInput>
-        </div>
-        <div className="eighty">
+        </IonItem>
+        <IonItem className="eighty">
           <IonInput
             className="input"
             value={password}
@@ -126,19 +129,28 @@ const CreateAccount = ({ setToggle }: { setToggle: () => void }) => {
             onIonChange={(e) => setPassword(e.detail.value ?? "")}
             type="password"
           ></IonInput>
-        </div>
+        </IonItem>
       </div>
-      <div className="loginButton">
+      <IonItem lines="none" className="loginButton">
         <IonButton
           shape="round"
           className="login"
           onClick={() => {
-            handleLogin();
+            handleSignUp();
+          }}
+        >
+          Sign Up
+        </IonButton>
+        <IonButton
+          shape="round"
+          className="login"
+          onClick={() => {
+            setToggle();
           }}
         >
           Log In
         </IonButton>
-      </div>
+      </IonItem>
       <div style={{ height: "64%" }} className="titleContainerBottom">
         <div className="beginningBottom">
           <div className="grayLettersFlex">

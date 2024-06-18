@@ -5,16 +5,12 @@ import React, { useEffect } from 'react';
 import { getMessaging, Messaging } from 'firebase/messaging'
 import { colorFill, heart, addOutline, settingsOutline, contractOutline } from "ionicons/icons";
 // import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
-// import {  } from 'firebase';
 import { createClient, RealtimeChannel } from '@supabase/supabase-js'
-
 import '../themes/chat.css'
 import { Keyboard } from '@capacitor/keyboard';
 const SUPABASE_URL = 'https://verqruktxvesbhtimfjm.supabase.co'
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcnFydWt0eHZlc2JodGltZmptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTMzMDM3NTIsImV4cCI6MjAyODg3OTc1Mn0.PL71cvIQHRnrUiA4QSPO4odky2s9PYE5dJ493s5sMVg'
 import { post } from '../utils';
-
-
 import {
   IonContent,
   useIonRouter,
@@ -36,6 +32,7 @@ import {
   IonRefresher,
   IonCardHeader,
   IonRefresherContent,
+  IonItem,
   IonTitle,
   IonToolbar,
   useIonViewWillEnter,
@@ -55,8 +52,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import '../themes/test.css'
 import "../themes/styles.scss"
 
-SwiperCore.use([Pagination]);
 
+SwiperCore.use([Pagination]);
 const Home: React.FC = () => {
   const router = useIonRouter();
   const history = useHistory();
@@ -79,8 +76,13 @@ const Home: React.FC = () => {
 
 
   useEffect(() => {
-    getConvos()
-  }, [])
+    getConvos();
+    const intervalId = setInterval(getConvos, 1000);
+    return () => clearInterval(intervalId);
+  }, []);
+
+
+
 
   useEffect(() => {
     setVisibleCards(myConvos?.map((card) => { return true }))
@@ -112,46 +114,75 @@ const Home: React.FC = () => {
   }
 
 
+
   console.log(myConvos, 'these are conbos')
 
   return (
-    <>      
+    <>
+      <IonMenu contentId="mainContent">
+        <IonHeader>
+          <IonToolbar>
+            Menu
+          </IonToolbar>
+        </IonHeader>
+        <div className='centerButton'>
+          <IonButton>Logout</IonButton>
+        </div>
+      </IonMenu>
       <IonPage>
         <IonHeader>
-          <IonToolbar class='ion-text-center'>            
+          <IonToolbar class='ion-text-center'>
+            <IonButtons id="mainContent" slot="start">
+              <IonMenuButton></IonMenuButton>
+            </IonButtons>
             <IonTitle>{localStorage.getItem('user')}</IonTitle>
           </IonToolbar>
         </IonHeader>
         <IonContent>
           <ul>
             <AnimatePresence>
-              {myConvos?.map((convo, i) => (
-                <motion.li
-                  key={convo.id}
-                  exit={MESSAGE_DELETE_ANIMATION}
-                  transition={MESSAGE_DELETE_TRANSITION}
-                >
-                  <motion.div
-                    drag="x"
-                    dragConstraints={{ left: 0, right: 0 }}
-                    onDragEnd={(_, info) => handleDragEnd(info, convo?.id)}
-                    className="msg-container"
-                  >
-                    <img
-                      style={{ marginLeft: '10px' }}
-                      className="user-icon"
-                      src={"https://ionicframework.com/docs/img/demos/avatar.svg"}
-                      alt="User icon"
-                    />
+              {myConvos?.sort((a, b) => Date.parse(b?.message[b?.message.length - 1].date) - Date.parse(a?.message[a?.message.length - 1].date)).map((convo, i) => {
+                // Extract and format the local time for the last message date
+                const lastMessageDate = new Date(convo?.message[convo?.message.length - 1].date);
+                let hours = lastMessageDate.getHours();
+                const minutes = String(lastMessageDate.getMinutes()).padStart(2, "0");
+                const seconds = String(lastMessageDate.getSeconds()).padStart(2, "0");
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12 || 12; // Convert to 12-hour format
 
-                    <div onClick={() => gotoTopic(convo?.id)} className="message-text">
-                      <div className='Title'>{convo.users.length > 2 ? convo?.users.join(', ') : convo?.users}</div>
-                      <div className='graySub'>{convo?.message[convo?.message?.length - 1]?.message}</div>
-                    </div>
-                  </motion.div>
-                  <div className="delete-btn">Delete</div>
-                </motion.li>
-              ))}
+                const time = `${hours}:${minutes} ${ampm}`;
+
+                return (
+                  <motion.li
+                    key={convo.id}
+                    exit={MESSAGE_DELETE_ANIMATION}
+                    transition={MESSAGE_DELETE_TRANSITION}
+                  >
+                    <motion.div
+                      drag="x"
+                      dragConstraints={{ left: 0, right: 0 }}
+                      onDragEnd={(_, info) => handleDragEnd(info, convo?.id)}
+                      className="msg-container"
+                    >
+                      <img
+                        style={{ marginLeft: '10px' }}
+                        className="user-icon"
+                        src={"https://ionicframework.com/docs/img/demos/avatar.svg"}
+                        alt="User icon"
+                      />
+
+                      <div onClick={() => gotoTopic(convo?.id)} className="message-text">
+                        <div className='flexTime'>
+                          <div className='Title'>{localStorage.getItem('user') === convo?.me ? convo?.recipient : convo?.me}</div>
+                          <div className='graySub'>{time}</div>
+                        </div>
+                        <div className='graySub'>{convo?.message[convo?.message?.length - 1]?.message}</div>
+                      </div>
+                    </motion.div>
+                    <div className="delete-btn">Delete</div>
+                  </motion.li>
+                );
+              })}
             </AnimatePresence>
           </ul>
           <div className='center'>
