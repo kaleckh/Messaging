@@ -11,6 +11,8 @@ import {
   heart,
   addOutline,
   sendOutline,
+  checkmarkOutline,
+  checkmarkDoneOutline,
   send,
   backspaceOutline,
   returnUpBackOutline,
@@ -45,43 +47,41 @@ import "../themes/chat.css";
 import Home from "../pages/Home";
 import { useParams } from "react-router-dom";
 
+type MessageStatus = "Delivered" | "Read";
+
 const CurrentChat = () => {
   const [message, setMessage] = useState<string>("");
   const [user, setUser] = useState<string>();
-  const [messages, setMessages] = useState<
-    {
-      userName: string;
-      message: string;
-    }[]
-  >([]);
+  const [status, setStatus] = useState<MessageStatus>("Delivered");
   const channel = useRef<RealtimeChannel | null>(null);
-  const { topic_id } = useParams<{ topic_id: string }>();
-  const { myUsername, person, setPerson, updateMessages } =
-    useContext(MyContext);
+  const { id } = useParams<{ id: string }>();
+  const { myUsername, person, setPerson, addMessage } = useContext(MyContext);
   const [uniqueUsers, setUniqueUsers] = useState();
   const [myConvo, setMyConvo] = useState();
+  const [userName, setUserName] = useState<string | null>(localStorage.getItem("user"),);
+  const [roomName, setRoomName] = useState<string>(`${localStorage.getItem("user")}${userName}`);
   const [info, setInfo] = useState<{
     id: string;
     users: [];
     me: string;
     message: { userName: string; message: string }[];
   }>();
-  const [userName, setUserName] = useState<string | null>(
-    localStorage.getItem("user"),
-  );
-  const [roomName, setRoomName] = useState<string>(
-    `${localStorage.getItem("user")}${userName}`,
-  );
+  const [messages, setMessages] = useState<
+    {
+      userName: string;
+      message: string;
+      status: MessageStatus;
+    }[]
+  >([]);
 
-
-
-  useEffect(() => {
-    if (userName === "") {
-      setUserName(localStorage.getItem("user"));
-    }
-  }, [userName]);
-
-
+  // useEffect(() => {
+  //   if (
+  //     messages[messages.length - 1].userName !== myUsername ||
+  //     messages[messages.length - 1].message.status === "Delivered"
+  //   ) {
+  //     updateConversation(topic_id, messages[messages.length - 1].id, "");
+  //   }
+  // }, []);
 
   useEffect(() => {
     if (!channel.current) {
@@ -94,9 +94,11 @@ const CurrentChat = () => {
         },
       });
       channel.current
-        .on("broadcast", { event: "message" }, ({ payload }) => {          
-          payload.message.date = new Date()
+        .on("broadcast", { event: "message" }, ({ payload }) => {
+          payload.message.date = new Date();
+          payload.message.status = "Delivered";
           setMessages((prev) => [...prev, payload.message]);
+          addMessage(id, payload.message.message, payload.message.userName)
         })
         .subscribe();
     }
@@ -106,29 +108,11 @@ const CurrentChat = () => {
     };
   }, []);
 
-  // useEffect(() => {
-  //     if (userName === '') {
-  //         setUserName(localStorage.getItem('user'))
-  //     }
-  // }, [userName])
-
   useEffect(() => {
-    let users = messages.map((msg) => {
-      return msg.userName;
-    });
-    let uniq = [...new Set(users)];
-    let nameToRemove = localStorage.getItem("user");
-    let array = uniq.filter((item) => item !== nameToRemove);
-    setUniqueUsers(array);
-    console.log(uniqueUsers);
-    if (messages.length > 0) {
-      updateMessages(topic_id, messages, uniqueUsers);
-    }
-  }, [messages]);
-
-  useEffect(() => {
-    getConvos();
+    getConvo();
+    getConvoDetails()
   }, []);
+
 
   function onSend() {
     if (!channel.current || message.trim().length === 0) return;
@@ -140,24 +124,26 @@ const CurrentChat = () => {
     setMessage("");
   }
 
-  // const updateMessages = async () => {
-  //     const addMessage = await post({
-  //         url: `http://localhost:3000/api/updateMessages`,
-  //         body: {
-  //             messages: messages,
-  //             me: localStorage.getItem('user'),
-  //             id: topic_id,
-  //             users: uniqueUsers?.filter((unq) => unq !== localStorage.getItem('user')),
-  //         },
-  //     });
-  //     console.log(addMessage, 'add it')
-  //     getConvos()
+  // const updateConversations = async () => {
+  //   const addMessage = await post({
+  //     url: `http://localhost:3000/api/updateConversations`,
+  //     body: {
+  //       messages: messages,
+  //       me: localStorage.getItem("user"),
+  //       id: topic_id,
+  //       users: uniqueUsers?.filter(
+  //         (unq) => unq !== localStorage.getItem("user"),
+  //       ),
+  //     },
+  //   });
+  //   console.log(addMessage, "add it");
+  //   getMessages();
   // };
 
-  const getConvos = async () => {
+  const getConvo = async () => {
     try {
       const convos = await fetch(
-        `http://localhost:3000/api/getConvo?id=${topic_id}`,
+        `http://localhost:3000/api/getConvo?id=${id}`,
         {
           method: "GET",
           headers: {
@@ -166,14 +152,32 @@ const CurrentChat = () => {
         },
       );
       const thisConvo = await convos.json();
-      setMessages(thisConvo.Posts.message);
+      // console.log(thisConvo.Posts.map((convo: any) => {console.log(convo.message, 'this is the messag')}),'testing a convo')
+      setMessages(thisConvo.Posts);
+      setInfo(thisConvo.Posts);
+    } catch (error) {
+      console.log(error, "this is the create user error");
+    }
+  };
+  const getConvoDetails = async () => {
+    try {
+      const convos = await fetch(
+        `http://localhost:3000/api/getSingleConvo?id=${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      const thisConvo = await convos.json();
+      // console.log(thisConvo.Posts.map((convo: any) => {console.log(convo.message, 'this is the messag')}),'testing a convo')      
       setInfo(thisConvo.Posts);
     } catch (error) {
       console.log(error, "this is the create user error");
     }
   };
 
-  console.log(info, 'this is a username')
 
   return (
     <IonPage>
@@ -184,21 +188,17 @@ const CurrentChat = () => {
               routerLink="/home"
               routerDirection="back"
               onClick={() => {
-                updateMessages(topic_id, messages, uniqueUsers);
+                // updateMessages(topic_id, messages, uniqueUsers);
               }}
             >
               <IonIcon size="large" icon={returnUpBackOutline}></IonIcon>
             </IonRouterLink>
             <div className="centeredInputContainer">
-              {/* <IonInput
-                className="inputCenter"
-                onIonInput={(e) => {
-                  setUserName(e?.target.value);
-                }}
-                type="text"
-                placeholder={info?.recipient}
-              ></IonInput> */}
-              <IonTitle>{localStorage.getItem('user') === info?.me ? info?.recipient : info?.me}</IonTitle>
+              <IonTitle>
+                {localStorage.getItem("user") === info?.me
+                  ? info?.recipient
+                  : info?.me}
+              </IonTitle>
             </div>
             <div></div>
           </div>
@@ -233,6 +233,15 @@ const CurrentChat = () => {
                 </div>
               </div>
             ))}
+            <div className="end" style={{ paddingRight: "25px" }}>
+              {messages[messages.length - 1]?.userName === myUsername ? (
+                <>
+                  <IonIcon icon={checkmarkOutline}></IonIcon>
+                </>
+              ) : (
+                <></>
+              )}
+            </div>
           </div>
         </div>
       </IonContent>
@@ -251,7 +260,6 @@ const CurrentChat = () => {
             onKeyUp={(e) => {
               if (e.key === "Enter") {
                 onSend();
-                updateMessages(topic_id, messages, info?.users);
               }
             }}
             className="something"

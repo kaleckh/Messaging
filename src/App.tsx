@@ -38,6 +38,7 @@ import { ContextProvider } from "./providers/postProvider";
 import Chat from "./pages/Chat";
 import ChatBox from "./pages/CurrentChat";
 import Test from "./pages/Test";
+import CurrentChat from "./pages/CurrentChat";
 
 setupIonicReact();
 
@@ -63,11 +64,11 @@ const App: React.FC = () => (
               <Route path="/newChat">
                 <Chat />
               </Route>
-              <Route path="/chat/:topic_id">
-                <ChatBox />
-              </Route>
               <Route path="/test">
                 <Test />
+              </Route>
+              <Route path="/chat/:id">
+                <CurrentChat />
               </Route>
             </IonRouterOutlet>
           </IonReactRouter>

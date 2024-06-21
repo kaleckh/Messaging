@@ -10,7 +10,7 @@ const MyContext = createContext({
   myConvos: [],
   getConvos: () => { },
   deleteConvos: (id: string) => { },
-  updateMessages: (id: string, messages: {}[], users: []) => { },
+  addMessage: (id: string, message: string, userName: string) => { },
 });
 
 const ContextProvider = ({ children }: { children: ReactNode }) => {
@@ -85,15 +85,14 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const updateMessages = async (id: string, messages: {}[], users: [], date: Date) => {
-    console.log("shit might be working", id, users, messages);
+  const addMessage = async (id: string, message: string, userName: string) => {
+    console.log(userName, 'payload')
     const addMessage = await post({
-      url: `http://localhost:3000/api/updateMessages`,
+      url: `http://localhost:3000/api/addMessage`,
       body: {
-        messages: messages,
-        me: localStorage.getItem("user"),
-        id,
-        users
+        messages: message,
+        userName,
+        id
       },
     });
     getConvos();
@@ -109,7 +108,7 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
         myConvos,
         getConvos,
         deleteConvos,
-        updateMessages,
+        addMessage,
       }}
     >
       {children}

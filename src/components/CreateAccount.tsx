@@ -16,7 +16,7 @@ import {
   useIonToast,
   useIonLoading,
 } from "@ionic/react";
-import { useHistory } from 'react-router';
+import { useHistory } from "react-router";
 
 const CreateAccount = ({ setToggle }: { setToggle: () => void }) => {
   const [content, setContent] = useState<{ hello: [] }>();
@@ -34,7 +34,7 @@ const CreateAccount = ({ setToggle }: { setToggle: () => void }) => {
       const { data, error } = await supabase.auth.signUp({
         email: email,
         password: password,
-      })
+      });
       const result = await fetch(`http://localhost:3000/api/createUser`, {
         method: "POST",
         headers: {
@@ -45,8 +45,8 @@ const CreateAccount = ({ setToggle }: { setToggle: () => void }) => {
           email: email,
         }),
       });
-      localStorage.setItem('user',email)
-      history.push("/home");      
+      localStorage.setItem("user", email);
+      history.push("/home");
     } catch (error) {
       console.log(error);
     }
@@ -103,7 +103,6 @@ const CreateAccount = ({ setToggle }: { setToggle: () => void }) => {
         <IonItem className="eighty">
           <IonInput
             className="input"
-
             placeholder="Username"
             name="username"
             onIonChange={(e) => setUsername(e.detail.value ?? "")}
@@ -113,7 +112,6 @@ const CreateAccount = ({ setToggle }: { setToggle: () => void }) => {
         <IonItem className="eighty">
           <IonInput
             className="input"
-
             placeholder="email"
             name="email"
             onIonChange={(e) => setEmail(e.detail.value ?? "")}

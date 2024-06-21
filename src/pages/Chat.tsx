@@ -7,17 +7,10 @@ import { getMessaging, Messaging } from "firebase/messaging";
 // import {  } from 'firebase';
 import { createClient, RealtimeChannel } from "@supabase/supabase-js";
 import {
-  colorFill,
-  heart,
-  addOutline,
   sendOutline,
-  send,
-  backspaceOutline,
   returnUpBackOutline,
-  heartCircle,
-  addCircleOutline,
   checkmarkOutline,
-  logoClosedCaptioning,
+  checkmarkDoneOutline,
 } from "ionicons/icons";
 import { Keyboard } from "@capacitor/keyboard";
 import { MyContext } from "../providers/postProvider";
@@ -52,18 +45,18 @@ const Chat = () => {
     {
       userName: string;
       message: string;
-      date: Date
+      date: Date;
     }[]
   >([]);
   const channel = useRef<RealtimeChannel | null>(null);
-  const { myUsername, person, setPerson, getConvos, updateMessages } =
+  const { myUsername, person, setPerson, getConvos, addMessage } =
     useContext(MyContext);
   const [uniqueUsers, setUniqueUsers] = useState();
   const [myConvo, setMyConvo] = useState();
   const [recipient, setRecipient] = useState();
   const [convoId, setConvoId] = useState<string>("");
   const [userName, setUserName] = useState<string | null>(myUsername);
-  const [roomName, setRoomName] = useState<string>('');
+  const [roomName, setRoomName] = useState<string>("");
 
   // useEffect(() => {
   //     if (userName === '') {
@@ -72,23 +65,14 @@ const Chat = () => {
   // }, [userName])
 
   useEffect(() => {
-    setRoomName(`${localStorage.getItem("user")}${recipient}`)
-  }, [roomName])
+    setRoomName(`${localStorage.getItem("user")}${recipient}`);
+  }, [roomName]);
 
   useEffect(() => {
     if (messages.length === 1) {
-      addMessages();
+      createConversation();
     } else if (messages.length > 1) {
-      let users = messages.map((msg) => {
-        return msg.userName;
-      });
-      let uniq = [...new Set(users)];
-      let nameToRemove = localStorage.getItem("user");
-      let array = uniq.filter((item) => item !== nameToRemove);
-      setUniqueUsers(array);
-      console.log(array);
-      console.log(uniqueUsers);
-      updateMessages(convoId, messages, array);
+      // addMessage(convoId, messages, array);
     }
   }, [messages]);
 
@@ -105,12 +89,12 @@ const Chat = () => {
 
       channel.current
         .on("broadcast", { event: "message" }, ({ payload }) => {
-          payload.message.date = new Date()
+          payload.message.date = new Date();
+          payload.message.status = "Delivered";
           setMessages((prev) => [...prev, payload.message]);
         })
         .subscribe();
     }
-
     return () => {
       if (channel.current) {
         channel.current.unsubscribe();
@@ -118,6 +102,8 @@ const Chat = () => {
       }
     };
   }, [roomName]);
+
+
 
   function onSend() {
     if (!channel.current || message.trim().length === 0) return;
@@ -129,64 +115,20 @@ const Chat = () => {
     setMessage("");
   }
 
-  const addMessages = async () => {
+  const createConversation = async () => {
     const addMessage = await post({
-      url: `http://localhost:3000/api/addMessage`,
+      url: `http://localhost:3000/api/createConversation`,
       body: {
         messages: messages,
         me: localStorage.getItem("user"),
-        users: uniqueUsers?.filter(
-          (unq) => unq !== localStorage.getItem("user"),
-        ),
         roomName: `${localStorage.getItem("user")}${recipient}`,
-        recipient
+        recipient,
       },
     });
-    console.log(addMessage, 'this si what i need now')
     setConvoId(addMessage.update.id);
-    getConvos();
   };
 
-  const handleRefresh = () => {
-    getConvos();
-  };
 
-  // const updateMessages = async (id: string) => {
-  //     const addMessage = await post({
-  //         url: `http://localhost:3000/api/updateMessages`,
-  //         body: {
-  //             messages: messages,
-  //             me: localStorage.getItem('user'),
-  //             id,
-  //             users: uniqueUsers?.filter((unq) => unq !== localStorage.getItem('user')),
-  //         },
-  //     });
-  //     handleRefresh()
-  // };
-
-
-  useEffect(() => {
-    getConvo();
-  }, []);
-
-  const getConvo = async () => {
-    try {
-      const convos = await fetch(
-        `http://localhost:3000/api/getConvo?id=${convoId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      );
-      const thisConvo = await convos.json();
-      setRecipient(thisConvo.Posts.recipient)
-      console.log(thisConvo, 'tjos os tje cppv')
-    } catch (error) {
-      console.log(error, "this is the create user error");
-    }
-  };
 
 
   return (
@@ -195,9 +137,9 @@ const Chat = () => {
         <IonToolbar>
           <div className="flex">
             <IonRouterLink
-              onClick={() => {
-                updateMessages(convoId, messages, uniqueUsers);
-              }}
+              // onClick={() => {
+              //   updateMessages(convoId, messages, uniqueUsers);
+              // }}
               routerLink="/home"
               routerDirection="back"
             >
@@ -210,7 +152,7 @@ const Chat = () => {
                   setRecipient(e?.target.value);
                 }}
                 type="text"
-                placeholder={recipient ? recipient : 'who to?'}
+                placeholder={recipient ? recipient : "who to?"}
               ></IonInput>
             </div>
             <div></div>
@@ -219,8 +161,7 @@ const Chat = () => {
       </IonHeader>
       <div className="freshPage">
         <div className="column">
-          {messages?.map((msg, i) =>
-          (
+          {messages?.map((msg, i) => (
             <div
               key={i}
               className={` ${myUsername === msg.userName ? "end" : "start"}`}
@@ -280,6 +221,5 @@ const Chat = () => {
     </IonPage>
   );
 };
-
 
 export default Chat;

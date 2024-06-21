@@ -62,7 +62,6 @@ ul {
 
   li {
     position: relative;
-    
 
     .delete-btn {
       z-index: $z2;
@@ -80,7 +79,7 @@ ul {
     }
   }
   li:not(:last-child) {
-    border-bottom: 1px solid rgb(240, 232, 232);  
+    border-bottom: 1px solid rgb(240, 232, 232);
   }
 
   .msg-container {

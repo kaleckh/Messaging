@@ -55,18 +55,17 @@
   transition: transform 0.3s ease-in-out;
 }
 
-.avatarContainer{
+.avatarContainer {
   width: 70px;
   height: 50px;
-  
 }
 
-.Title{
+.Title {
   color: black;
   font-size: 20px;
   font-weight: 450;
   padding-bottom: 5px;
 }
-.graySub{
+.graySub {
   color: rgb(161, 161, 161);
 }
