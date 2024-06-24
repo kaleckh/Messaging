@@ -55,7 +55,7 @@ const CurrentChat = () => {
   const [status, setStatus] = useState<MessageStatus>("Delivered");
   const channel = useRef<RealtimeChannel | null>(null);
   const { id } = useParams<{ id: string }>();
-  const { myUsername, person, setPerson, addMessage } = useContext(MyContext);
+  const { myUsername, person, setPerson, getConvos, addMessage } = useContext(MyContext);
   const [uniqueUsers, setUniqueUsers] = useState();
   const [myConvo, setMyConvo] = useState();
   const [userName, setUserName] = useState<string | null>(localStorage.getItem("user"),);
@@ -64,7 +64,9 @@ const CurrentChat = () => {
     id: string;
     users: [];
     me: string;
-    message: { userName: string; message: string }[];
+    message: { userName: string; message: string }[],
+    recipient: string
+
   }>();
   const [messages, setMessages] = useState<
     {
@@ -74,14 +76,8 @@ const CurrentChat = () => {
     }[]
   >([]);
 
-  // useEffect(() => {
-  //   if (
-  //     messages[messages.length - 1].userName !== myUsername ||
-  //     messages[messages.length - 1].message.status === "Delivered"
-  //   ) {
-  //     updateConversation(topic_id, messages[messages.length - 1].id, "");
-  //   }
-  // }, []);
+
+
 
   useEffect(() => {
     if (!channel.current) {
@@ -98,7 +94,9 @@ const CurrentChat = () => {
           payload.message.date = new Date();
           payload.message.status = "Delivered";
           setMessages((prev) => [...prev, payload.message]);
-          addMessage(id, payload.message.message, payload.message.userName)
+          if (payload.message.userName === myUsername) {
+            addMessage(id, payload.message.message, payload.message.userName)
+          }
         })
         .subscribe();
     }
@@ -115,6 +113,8 @@ const CurrentChat = () => {
 
 
   function onSend() {
+
+
     if (!channel.current || message.trim().length === 0) return;
     channel.current.send({
       type: "broadcast",
@@ -123,22 +123,6 @@ const CurrentChat = () => {
     });
     setMessage("");
   }
-
-  // const updateConversations = async () => {
-  //   const addMessage = await post({
-  //     url: `http://localhost:3000/api/updateConversations`,
-  //     body: {
-  //       messages: messages,
-  //       me: localStorage.getItem("user"),
-  //       id: topic_id,
-  //       users: uniqueUsers?.filter(
-  //         (unq) => unq !== localStorage.getItem("user"),
-  //       ),
-  //     },
-  //   });
-  //   console.log(addMessage, "add it");
-  //   getMessages();
-  // };
 
   const getConvo = async () => {
     try {
@@ -152,13 +136,14 @@ const CurrentChat = () => {
         },
       );
       const thisConvo = await convos.json();
-      // console.log(thisConvo.Posts.map((convo: any) => {console.log(convo.message, 'this is the messag')}),'testing a convo')
       setMessages(thisConvo.Posts);
-      setInfo(thisConvo.Posts);
+      console.log(thisConvo, 'this convo')
     } catch (error) {
       console.log(error, "this is the create user error");
     }
   };
+
+
   const getConvoDetails = async () => {
     try {
       const convos = await fetch(
@@ -171,12 +156,21 @@ const CurrentChat = () => {
         },
       );
       const thisConvo = await convos.json();
-      // console.log(thisConvo.Posts.map((convo: any) => {console.log(convo.message, 'this is the messag')}),'testing a convo')      
       setInfo(thisConvo.Posts);
     } catch (error) {
       console.log(error, "this is the create user error");
     }
   };
+
+
+
+  // useEffect(() => {
+  //   if (messages[messages.length - 1].status === "Delivered" && info?.recipient !== myUsername ) {
+  //     // update
+  //   }
+  // }, [])
+
+  console.log(id, '')
 
 
   return (
@@ -187,9 +181,6 @@ const CurrentChat = () => {
             <IonRouterLink
               routerLink="/home"
               routerDirection="back"
-              onClick={() => {
-                // updateMessages(topic_id, messages, uniqueUsers);
-              }}
             >
               <IonIcon size="large" icon={returnUpBackOutline}></IonIcon>
             </IonRouterLink>
@@ -234,13 +225,7 @@ const CurrentChat = () => {
               </div>
             ))}
             <div className="end" style={{ paddingRight: "25px" }}>
-              {messages[messages.length - 1]?.userName === myUsername ? (
-                <>
-                  <IonIcon icon={checkmarkOutline}></IonIcon>
-                </>
-              ) : (
-                <></>
-              )}
+              <IonIcon icon={checkmarkOutline}></IonIcon>
             </div>
           </div>
         </div>

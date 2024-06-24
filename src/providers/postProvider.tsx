@@ -85,8 +85,7 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const addMessage = async (id: string, message: string, userName: string) => {
-    console.log(userName, 'payload')
+  const addMessage = async (id: string, message: string, userName: string) => {    
     const addMessage = await post({
       url: `http://localhost:3000/api/addMessage`,
       body: {

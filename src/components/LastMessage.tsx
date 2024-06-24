@@ -7,8 +7,9 @@ const LastMessage = ({ conversationId }: { conversationId: "" }) => {
   const [lastMessage, setLastMessage] = useState();
 
   useEffect(() => {
-    getLastMessage(conversationId);
-  }, []);
+    getLastMessage(conversationId)
+  }, [])
+
 
   const getLastMessage = async (conversationId: string) => {
     try {
@@ -22,6 +23,7 @@ const LastMessage = ({ conversationId }: { conversationId: "" }) => {
         },
       );
       const userInfo = await convos.json();
+      console.log(userInfo, 'this is user info')
       setLastMessage(userInfo.Response[0].message);
       return userInfo.Response[0].message;
     } catch (error) {

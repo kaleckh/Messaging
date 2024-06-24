@@ -110,9 +110,9 @@ const Home: React.FC = () => {
       console.log(`Slide ${index + 1} is in view`);
       // Run your specific function here
     }
-  };
+  }
 
-  const handleDragEnd = (info, messageId: string) => {
+  const handleDragEnd = (info, messageId: string) => {    
     const dragDistance = info.point.x;
     if (dragDistance < -DELETE_BTN_WIDTH) {
       // setMessagesList(messagesList.filter(message => message.id !== messageId))

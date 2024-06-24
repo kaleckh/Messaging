@@ -18,6 +18,7 @@ const SUPABASE_URL = "https://verqruktxvesbhtimfjm.supabase.co";
 const SUPABASE_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcnFydWt0eHZlc2JodGltZmptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTMzMDM3NTIsImV4cCI6MjAyODg3OTc1Mn0.PL71cvIQHRnrUiA4QSPO4odky2s9PYE5dJ493s5sMVg";
 import { post } from "../utils";
+import { useHistory } from "react-router";
 import {
   IonContent,
   IonHeader,
@@ -53,6 +54,7 @@ const Chat = () => {
     useContext(MyContext);
   const [uniqueUsers, setUniqueUsers] = useState();
   const [myConvo, setMyConvo] = useState();
+  const history = useHistory();
   const [recipient, setRecipient] = useState();
   const [convoId, setConvoId] = useState<string>("");
   const [userName, setUserName] = useState<string | null>(myUsername);
@@ -68,11 +70,13 @@ const Chat = () => {
     setRoomName(`${localStorage.getItem("user")}${recipient}`);
   }, [roomName]);
 
+  
   useEffect(() => {
     if (messages.length === 1) {
+      
       createConversation();
-    } else if (messages.length > 1) {
-      // addMessage(convoId, messages, array);
+    } else if (messages.length > 1) {      
+      // addMessage(convoId, payload.message.message, payload.message.userName);
     }
   }, [messages]);
 
@@ -125,11 +129,12 @@ const Chat = () => {
         recipient,
       },
     });
-    setConvoId(addMessage.update.id);
+    setConvoId(addMessage.update.id);    
+    history.push(`/chat/${addMessage.update.id}`);
   };
 
 
-
+  console.log(messages, 'all messages')
 
   return (
     <IonPage>
