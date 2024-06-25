@@ -131,6 +131,10 @@
   min-height: 200px;
 }
 
+.none {
+  display: none;
+}
+
 .text-input {
   text-align: center;
 }

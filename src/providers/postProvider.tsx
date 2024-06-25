@@ -10,7 +10,7 @@ const MyContext = createContext({
   myConvos: [],
   getConvos: () => { },
   deleteConvos: (id: string) => { },
-  addMessage: (id: string, message: string, userName: string) => { },
+  addMessage: (id: string, conversationId: string, message: string, userName: string, status: string) => { },
 });
 
 const ContextProvider = ({ children }: { children: ReactNode }) => {
@@ -20,18 +20,6 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
   const [person, setPerson] = useState("");
   const [myConvos, setMyConvos] = useState([]);
   const [convoId, setConvoId] = useState([]);
-
-  // const addMessages = async () => {
-  //   const addMessage = await post({
-  //     url: `http://localhost:3000/api/addMessage`,
-  //     body: {
-  //       messages: messages,
-  //       me: localStorage.getItem('user'),
-  //       users: uniqueUsers?.filter((unq) => unq !== localStorage.getItem('user')),
-  //     },
-  //   });
-  //   setConvoId(addMessage.update.id)
-  // };
 
   const getConvos = async () => {
     try {
@@ -52,20 +40,6 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // const addMessages = async (id: string, messages: {}[], users: []) => {
-  //   const addMessage = await post({
-  //     url: `http://localhost:3000/api/addMessage`,
-  //     body: {
-  //       messages: messages,
-  //       me: localStorage.getItem('user'),
-  //       users
-  //     },
-  //   });
-  //   setConvoId(addMessage.update.id)
-  //   console.log(addMessage.update, 'this is adding a message')
-  //   getConvos()
-  // };
-
   const deleteConvos = async (id: string) => {
     try {
       const convos = await fetch(`http://localhost:3000/api/deleteConvo`, {
@@ -85,13 +59,15 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const addMessage = async (id: string, message: string, userName: string) => {    
+  const addMessage = async (id: string, conversationId: string, message: string, userName: string, status: string) => {
     const addMessage = await post({
       url: `http://localhost:3000/api/addMessage`,
       body: {
+        id,
         messages: message,
         userName,
-        id
+        conversationId,
+        status: status
       },
     });
     getConvos();

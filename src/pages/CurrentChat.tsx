@@ -1,11 +1,9 @@
 import MessageListItem from "../components/MessageListItem";
 import { useState, useRef, useContext } from "react";
-import { Message, getMessages } from "../data/messages";
 import React, { useEffect } from "react";
 import { getMessaging, Messaging } from "firebase/messaging";
-// import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
-// import {  } from 'firebase';
-import { createClient, RealtimeChannel } from "@supabase/supabase-js";
+import supabase from "../components/supabaseClient";
+import { createId } from '@paralleldrive/cuid2';
 import {
   colorFill,
   heart,
@@ -21,11 +19,6 @@ import {
 import "../themes/chat.css";
 import { Keyboard } from "@capacitor/keyboard";
 import { MyContext } from "../providers/postProvider";
-const SUPABASE_URL = "https://verqruktxvesbhtimfjm.supabase.co";
-const SUPABASE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcnFydWt0eHZlc2JodGltZmptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTMzMDM3NTIsImV4cCI6MjAyODg3OTc1Mn0.PL71cvIQHRnrUiA4QSPO4odky2s9PYE5dJ493s5sMVg";
-import { post } from "../utils";
-
 import {
   IonContent,
   IonHeader,
@@ -43,8 +36,6 @@ import {
   IonNavLink,
   IonTextarea,
 } from "@ionic/react";
-import "../themes/chat.css";
-import Home from "../pages/Home";
 import { useParams } from "react-router-dom";
 
 type MessageStatus = "Delivered" | "Read";
@@ -55,34 +46,68 @@ const CurrentChat = () => {
   const [status, setStatus] = useState<MessageStatus>("Delivered");
   const channel = useRef<RealtimeChannel | null>(null);
   const { id } = useParams<{ id: string }>();
-  const { myUsername, person, setPerson, getConvos, addMessage } = useContext(MyContext);
+  const { myUsername, person, setPerson, getConvos, addMessage, myConvos } =
+    useContext(MyContext);
   const [uniqueUsers, setUniqueUsers] = useState();
   const [myConvo, setMyConvo] = useState();
-  const [userName, setUserName] = useState<string | null>(localStorage.getItem("user"),);
-  const [roomName, setRoomName] = useState<string>(`${localStorage.getItem("user")}${userName}`);
+  const [userName, setUserName] = useState<string | null>(
+    localStorage.getItem("user"),
+  );
+  const [roomName, setRoomName] = useState<string>(
+    `${localStorage.getItem("user")}${userName}`,
+  );
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [info, setInfo] = useState<{
     id: string;
     users: [];
     me: string;
-    message: { userName: string; message: string }[],
-    recipient: string
-
+    message: { userName: string; message: string }[];
+    recipient: string;
   }>();
   const [messages, setMessages] = useState<
     {
+      id: string,
       userName: string;
       message: string;
       status: MessageStatus;
     }[]
   >([]);
 
+  // Function to scroll to the last message
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
+  const updatedMessage = async (id: string, status: string) => {
+    
+      try {
+        const convos = await fetch(`http://localhost:3000/api/updateMessage`, {
+          method: "POST",
+          body: JSON.stringify({
+            id,
+            status
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        
+        const thisConvo = await convos.json();
+        await getConvo();
+      } catch (error) {
+        console.log(error, "this is the create user error");
+      }
+    
+  };
+
+  // useEffect(() => {
+  //   updatedMessage();
+  // }, [messages])
 
 
   useEffect(() => {
     if (!channel.current) {
-      const client = createClient(SUPABASE_URL!, SUPABASE_KEY!);
-      channel.current = client.channel("chat-room", {
+      channel.current = supabase.channel("chat-room", {
         config: {
           broadcast: {
             self: true,
@@ -94,8 +119,8 @@ const CurrentChat = () => {
           payload.message.date = new Date();
           payload.message.status = "Delivered";
           setMessages((prev) => [...prev, payload.message]);
-          if (payload.message.userName === myUsername) {
-            addMessage(id, payload.message.message, payload.message.userName)
+          if (payload.message.userName !== myUsername) {                         
+            updatedMessage(payload.message.id, "Read");
           }
         })
         .subscribe();
@@ -106,23 +131,33 @@ const CurrentChat = () => {
     };
   }, []);
 
+
   useEffect(() => {
     getConvo();
-    getConvoDetails()
+    getConvoDetails();
   }, []);
 
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+
   function onSend() {
-
-
+    const messageId = createId()
     if (!channel.current || message.trim().length === 0) return;
+    if (userName) {
+      addMessage(messageId, id, message, userName, 'Delivered');
+    }
+
     channel.current.send({
       type: "broadcast",
       event: "message",
-      payload: { message: { message, userName } },
+      payload: { message: { message, userName, id: messageId } },
     });
     setMessage("");
   }
+
 
   const getConvo = async () => {
     try {
@@ -137,11 +172,11 @@ const CurrentChat = () => {
       );
       const thisConvo = await convos.json();
       setMessages(thisConvo.Posts);
-      console.log(thisConvo, 'this convo')
     } catch (error) {
       console.log(error, "this is the create user error");
     }
   };
+
 
 
   const getConvoDetails = async () => {
@@ -162,26 +197,12 @@ const CurrentChat = () => {
     }
   };
 
-
-
-  // useEffect(() => {
-  //   if (messages[messages.length - 1].status === "Delivered" && info?.recipient !== myUsername ) {
-  //     // update
-  //   }
-  // }, [])
-
-  console.log(id, '')
-
-
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
           <div className="flex">
-            <IonRouterLink
-              routerLink="/home"
-              routerDirection="back"
-            >
+            <IonRouterLink routerLink="/home" routerDirection="back">
               <IonIcon size="large" icon={returnUpBackOutline}></IonIcon>
             </IonRouterLink>
             <div className="centeredInputContainer">
@@ -216,16 +237,29 @@ const CurrentChat = () => {
                     )}
                   </div>
                   <div
-                    className={`message ${userName === msg.userName ? "blue" : "gray"
-                      } `}
+                    className={`message ${userName === msg.userName ? "blue" : "gray"}`}
                   >
                     {msg.message}
                   </div>
                 </div>
               </div>
             ))}
-            <div className="end" style={{ paddingRight: "25px" }}>
-              <IonIcon icon={checkmarkOutline}></IonIcon>
+            <div ref={messagesEndRef} />
+            <div
+              className={
+                messages[messages.length - 1]?.userName !== myUsername
+                  ? "none"
+                  : "end"
+              }
+              style={{ paddingRight: "25px" }}
+            >
+              {messages[messages.length - 1]?.status === "Delivered" ? (
+                // <IonIcon icon={checkmarkOutline}></IonIcon>
+                <div>Delivered</div>
+              ) : (
+                // <IonIcon icon={checkmarkDoneOutline}></IonIcon>
+                <div>Read</div>
+              )}
             </div>
           </div>
         </div>

@@ -70,12 +70,10 @@ const Chat = () => {
     setRoomName(`${localStorage.getItem("user")}${recipient}`);
   }, [roomName]);
 
-  
   useEffect(() => {
     if (messages.length === 1) {
-      
       createConversation();
-    } else if (messages.length > 1) {      
+    } else if (messages.length > 1) {
       // addMessage(convoId, payload.message.message, payload.message.userName);
     }
   }, [messages]);
@@ -107,8 +105,6 @@ const Chat = () => {
     };
   }, [roomName]);
 
-
-
   function onSend() {
     if (!channel.current || message.trim().length === 0) return;
     channel.current.send({
@@ -129,12 +125,11 @@ const Chat = () => {
         recipient,
       },
     });
-    setConvoId(addMessage.update.id);    
+    setConvoId(addMessage.update.id);
     history.push(`/chat/${addMessage.update.id}`);
   };
 
-
-  console.log(messages, 'all messages')
+  console.log(messages, "all messages");
 
   return (
     <IonPage>
@@ -178,14 +173,15 @@ const Chat = () => {
                   className={`${myUsername === msg.userName ? "blueEnd" : "grayEnd"}`}
                 >
                   {messages[i - 1]?.userName === msg.userName ? (
-                    <>{ }</>
+                    <>{}</>
                   ) : (
                     <div className="user">{msg.userName}</div>
                   )}
                 </div>
                 <div
-                  className={`message ${myUsername === msg.userName ? "blue" : "gray"
-                    } `}
+                  className={`message ${
+                    myUsername === msg.userName ? "blue" : "gray"
+                  } `}
                 >
                   {msg.message}
                 </div>
