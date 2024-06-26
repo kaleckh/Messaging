@@ -127,6 +127,22 @@
   width: 70%;
 }
 
+
+.blueDot{
+  width: 13px;
+  height: 13px;
+  margin-left: 20px;
+  background-color: rgb(63, 134, 196);
+  border-radius: 20px;
+}
+
+.blueDotNothing{
+  width: 13px;
+  height: 13px;
+  margin-left: 20px;
+  background-color: none;
+  border-radius: 20px;
+}
 .space {
   min-height: 200px;
 }

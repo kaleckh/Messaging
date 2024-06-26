@@ -75,34 +75,56 @@ const CurrentChat = () => {
 
   // Function to scroll to the last message
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
   };
 
   const updatedMessage = async (id: string, status: string) => {
-    
-      try {
-        const convos = await fetch(`http://localhost:3000/api/updateMessage`, {
-          method: "POST",
+    try {
+      const convos = await fetch(`http://localhost:3000/api/updateMessage`, {
+        method: "POST",
+        body: JSON.stringify({
+          id,
+          status
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const thisConvo = await convos.json();
+      await getConvo();
+    } catch (error) {
+      console.log(error, "this is the create user error");
+    }
+
+  };
+
+  useEffect(() => {
+    updateMessagesRead(id);
+  }, [myUsername])
+
+
+
+  const updateMessagesRead = async (id: string) => {
+    try {
+      const convos = await fetch(
+        `http://localhost:3000/api/updateMessageRead?`,
+        {
+          method: "Post",
           body: JSON.stringify({
-            id,
-            status
+            conversationId: id,
           }),
           headers: {
             "Content-Type": "application/json",
           },
-        });
-        
-        const thisConvo = await convos.json();
-        await getConvo();
-      } catch (error) {
-        console.log(error, "this is the create user error");
-      }
-    
+        },
+      );
+      const thisConvo = await convos.json();     
+      await getConvo();       
+    } catch (error) {
+      console.log(error, "this is the create user error");
+    }
   };
-
-  // useEffect(() => {
-  //   updatedMessage();
-  // }, [messages])
 
 
   useEffect(() => {
@@ -118,8 +140,8 @@ const CurrentChat = () => {
         .on("broadcast", { event: "message" }, ({ payload }) => {
           payload.message.date = new Date();
           payload.message.status = "Delivered";
-          setMessages((prev) => [...prev, payload.message]);
-          if (payload.message.userName !== myUsername) {                         
+          // setMessages((prev) => [...prev, payload.message]);
+          if (payload.message.userName !== myUsername) {
             updatedMessage(payload.message.id, "Read");
           }
         })
@@ -135,7 +157,7 @@ const CurrentChat = () => {
   useEffect(() => {
     getConvo();
     getConvoDetails();
-  }, []);
+  }, [myConvos]);
 
 
   useEffect(() => {
@@ -149,7 +171,6 @@ const CurrentChat = () => {
     if (userName) {
       addMessage(messageId, id, message, userName, 'Delivered');
     }
-
     channel.current.send({
       type: "broadcast",
       event: "message",

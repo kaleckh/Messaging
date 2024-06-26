@@ -67,10 +67,12 @@ const Home: React.FC = () => {
   const [messages, setMessages] = useState([]);
   const [lastMessage, setLastMessage] = useState();
   const [convos, setConvos] = useState([]);
-  const [myUsername, setMyUsername] = useState<string>("");
-  const { person, setPerson, getConvos, myConvos, deleteConvos } =
+  
+  const { person, setPerson, getConvos, myConvos, deleteConvos, myUsername } =
     useContext(MyContext);
   const [visibleCards, setVisibleCards] = useState<boolean[]>([]);
+  const [lastStatus, setLastStatus] = useState<string>();
+  const [lastUser, setLastUser] = useState<string>();
 
   const DELETE_BTN_WIDTH = 70;
 
@@ -120,7 +122,8 @@ const Home: React.FC = () => {
     }
   };
 
-  console.log(myConvos, "these are conbos");
+  console.log(lastUser, "these are conbos");
+  console.log(myUsername, "these are conbos");
 
   return (
     <>
@@ -167,6 +170,9 @@ const Home: React.FC = () => {
                       onDragEnd={(_, info) => handleDragEnd(info, convo?.id)}
                       className="msg-container"
                     >
+                      <div>
+                        {lastStatus === "Delivered" && lastUser !== myUsername  ? <div className="blueDot"></div> : <div className="blueDotNothing"></div>}
+                      </div>
                       <img
                         style={{ marginLeft: "10px" }}
                         className="user-icon"
@@ -188,8 +194,9 @@ const Home: React.FC = () => {
                           </div>
                           {/* <div className='graySub'>{time}</div> */}
                         </div>
-                        <LastMessage conversationId={convo?.id} />
+                        <LastMessage setLastUser={setLastUser} setStatus={setLastStatus} conversationId={convo?.id} />
                       </div>
+
                     </motion.div>
                     <div className="delete-btn">Delete</div>
                   </motion.li>
