@@ -127,8 +127,7 @@
   width: 70%;
 }
 
-
-.blueDot{
+.blueDot {
   width: 13px;
   height: 13px;
   margin-left: 20px;
@@ -136,7 +135,12 @@
   border-radius: 20px;
 }
 
-.blueDotNothing{
+.smallGray {
+  font-size: 12px;
+  color: rgb(103, 102, 102);
+}
+
+.blueDotNothing {
   width: 13px;
   height: 13px;
   margin-left: 20px;

@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "start": "react-app-rewired start",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
@@ -25,7 +26,6 @@
     "@supabase/supabase-js": "^2.43.4",
     "@types/react-router": "^5.1.20",
     "@types/react-router-dom": "^5.3.3",
-    "firebase": "^10.12.2",
     "framer-motion": "^11.2.10",
     "ionicons": "^7.0.0",
     "prettier": "^3.3.2",
@@ -56,6 +56,10 @@
     "terser": "^5.4.0",
     "typescript": "^5.1.6",
     "vite": "^5.0.0",
-    "vitest": "^0.34.6"
+    "vitest": "^0.34.6",
+    "webpack-bundle-analyzer": "^4.10.2"
+  },
+  "config": {
+    "ionic_webpack": "./config/webpack.config.js"
   }
 }

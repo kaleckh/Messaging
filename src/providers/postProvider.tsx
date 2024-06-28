@@ -4,13 +4,19 @@ import { post } from "../utils";
 // const MyContext = createContext({ values: [], setValues: (posts) => { } });
 const MyContext = createContext({
   myUsername: localStorage.getItem("user"),
-  setMyUsername: (value: string) => { },
+  setMyUsername: (value: string) => {},
   person: "",
-  setPerson: (value: string) => { },
+  setPerson: (value: string) => {},
   myConvos: [],
-  getConvos: () => { },
-  deleteConvos: (id: string) => { },
-  addMessage: (id: string, conversationId: string, message: string, userName: string, status: string) => { },
+  getConvos: () => {},
+  deleteConvos: (id: string) => {},
+  addMessage: (
+    id: string,
+    conversationId: string,
+    message: string,
+    userName: string,
+    status: string,
+  ) => {},
 });
 
 const ContextProvider = ({ children }: { children: ReactNode }) => {
@@ -59,8 +65,14 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const addMessage = async (id: string, conversationId: string, message: string, userName: string, status: string) => {
-    console.log(status, 'status of stuff')
+  const addMessage = async (
+    id: string,
+    conversationId: string,
+    message: string,
+    userName: string,
+    status: string,
+  ) => {
+    console.log(status, "status of stuff");
     const addMessage = await post({
       url: `http://localhost:3000/api/addMessage`,
       body: {
@@ -68,7 +80,7 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
         messages: message,
         userName,
         conversationId,
-        status: status
+        status: status,
       },
     });
     getConvos();

@@ -1,39 +1,19 @@
-import MessageListItem from "../components/MessageListItem";
 import { useState, useRef, useContext } from "react";
 import React, { useEffect } from "react";
-import { getMessaging, Messaging } from "firebase/messaging";
 import supabase from "../components/supabaseClient";
-import { createId } from '@paralleldrive/cuid2';
-import {
-  colorFill,
-  heart,
-  addOutline,
-  sendOutline,
-  checkmarkOutline,
-  checkmarkDoneOutline,
-  send,
-  backspaceOutline,
-  returnUpBackOutline,
-  heartCircle,
-} from "ionicons/icons";
+import { createId } from "@paralleldrive/cuid2";
+import { sendOutline, returnUpBackOutline } from "ionicons/icons";
 import "../themes/chat.css";
-import { Keyboard } from "@capacitor/keyboard";
 import { MyContext } from "../providers/postProvider";
 import {
   IonContent,
   IonHeader,
   IonIcon,
-  IonInput,
   IonButton,
-  IonList,
   IonRouterLink,
   IonPage,
-  IonRefresher,
-  IonRefresherContent,
   IonTitle,
   IonToolbar,
-  useIonViewWillEnter,
-  IonNavLink,
   IonTextarea,
 } from "@ionic/react";
 import { useParams } from "react-router-dom";
@@ -42,19 +22,12 @@ type MessageStatus = "Delivered" | "Read";
 
 const CurrentChat = () => {
   const [message, setMessage] = useState<string>("");
-  const [user, setUser] = useState<string>();
-  const [status, setStatus] = useState<MessageStatus>("Delivered");
-  const channel = useRef<RealtimeChannel | null>(null);
+  const channel = useRef(null);
   const { id } = useParams<{ id: string }>();
   const { myUsername, person, setPerson, getConvos, addMessage, myConvos } =
     useContext(MyContext);
-  const [uniqueUsers, setUniqueUsers] = useState();
-  const [myConvo, setMyConvo] = useState();
   const [userName, setUserName] = useState<string | null>(
     localStorage.getItem("user"),
-  );
-  const [roomName, setRoomName] = useState<string>(
-    `${localStorage.getItem("user")}${userName}`,
   );
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [info, setInfo] = useState<{
@@ -66,14 +39,13 @@ const CurrentChat = () => {
   }>();
   const [messages, setMessages] = useState<
     {
-      id: string,
+      id: string;
       userName: string;
       message: string;
       status: MessageStatus;
     }[]
   >([]);
 
-  // Function to scroll to the last message
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
   };
@@ -84,7 +56,7 @@ const CurrentChat = () => {
         method: "POST",
         body: JSON.stringify({
           id,
-          status
+          status,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -96,14 +68,11 @@ const CurrentChat = () => {
     } catch (error) {
       console.log(error, "this is the create user error");
     }
-
   };
 
   useEffect(() => {
     updateMessagesRead(id);
-  }, [myUsername])
-
-
+  }, [myUsername]);
 
   const updateMessagesRead = async (id: string) => {
     try {
@@ -119,13 +88,12 @@ const CurrentChat = () => {
           },
         },
       );
-      const thisConvo = await convos.json();     
-      await getConvo();       
+      const thisConvo = await convos.json();
+      await getConvo();
     } catch (error) {
       console.log(error, "this is the create user error");
     }
   };
-
 
   useEffect(() => {
     if (!channel.current) {
@@ -153,23 +121,20 @@ const CurrentChat = () => {
     };
   }, []);
 
-
   useEffect(() => {
     getConvo();
     getConvoDetails();
   }, [myConvos]);
 
-
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-
   function onSend() {
-    const messageId = createId()
+    const messageId = createId();
     if (!channel.current || message.trim().length === 0) return;
     if (userName) {
-      addMessage(messageId, id, message, userName, 'Delivered');
+      addMessage(messageId, id, message, userName, "Delivered");
     }
     channel.current.send({
       type: "broadcast",
@@ -178,7 +143,6 @@ const CurrentChat = () => {
     });
     setMessage("");
   }
-
 
   const getConvo = async () => {
     try {
@@ -197,8 +161,6 @@ const CurrentChat = () => {
       console.log(error, "this is the create user error");
     }
   };
-
-
 
   const getConvoDetails = async () => {
     try {
@@ -249,15 +211,6 @@ const CurrentChat = () => {
                   className={`${userName === msg.userName ? "centerEnd" : "centerBeginning"}`}
                 >
                   <div
-                    className={`${userName === msg.userName ? "blueEnd" : "grayEnd"}`}
-                  >
-                    {messages[i - 1]?.userName === msg.userName ? (
-                      <>{ }</>
-                    ) : (
-                      <div className="user">{msg.userName}</div>
-                    )}
-                  </div>
-                  <div
                     className={`message ${userName === msg.userName ? "blue" : "gray"}`}
                   >
                     {msg.message}
@@ -272,14 +225,12 @@ const CurrentChat = () => {
                   ? "none"
                   : "end"
               }
-              style={{ paddingRight: "25px" }}
+              style={{ paddingRight: "15px" }}
             >
               {messages[messages.length - 1]?.status === "Delivered" ? (
-                // <IonIcon icon={checkmarkOutline}></IonIcon>
-                <div>Delivered</div>
+                <div className="smallGray">Delivered</div>
               ) : (
-                // <IonIcon icon={checkmarkDoneOutline}></IonIcon>
-                <div>Read</div>
+                <div className="smallGray">Read</div>
               )}
             </div>
           </div>

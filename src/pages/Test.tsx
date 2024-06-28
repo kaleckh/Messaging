@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
+import { Keyboard } from "@capacitor/keyboard";
 import "../themes/styles.scss";
 
 const Bob =
@@ -34,64 +34,21 @@ const MESSAGES = [
   },
 ];
 
-const DELETE_BTN_WIDTH = 70;
-
-const MESSAGE_DELETE_ANIMATION = { height: 0, opacity: 0 };
-const MESSAGE_DELETE_TRANSITION = {
-  opacity: {
-    transition: {
-      duration: 0,
-    },
-  },
-};
-
 const App = () => {
   const [messagesList, setMessagesList] = useState(MESSAGES);
 
-  const handleDragEnd = (info, messageId) => {
-    const dragDistance = info.point.x;
-    if (dragDistance < -DELETE_BTN_WIDTH) {
-      setMessagesList(
-        messagesList.filter((message) => message.id !== messageId),
-      );
-    }
-  };
-
   return (
     <main className="screen">
-      <header>
-        <h1>Messages</h1>
-      </header>
-      <input type="text" placeholder="🔍 Search" />
-      <ul>
-        <AnimatePresence>
-          {messagesList.map((message) => (
-            <motion.li
-              key={message.id}
-              exit={MESSAGE_DELETE_ANIMATION}
-              transition={MESSAGE_DELETE_TRANSITION}
-            >
-              <motion.div
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                onDragEnd={(_, info) => handleDragEnd(info, message.id)}
-                className="msg-container"
-              >
-                <img
-                  className="user-icon"
-                  src={message.avatar}
-                  alt="User icon"
-                />
-                <div className="message-text">
-                  <h3>{message.author}</h3>
-                  <p>{message.message}</p>
-                </div>
-              </motion.div>
-              <div className="delete-btn">Delete</div>
-            </motion.li>
-          ))}
-        </AnimatePresence>
-      </ul>
+      <button
+        onClick={() => {
+          Keyboard.addListener("keyboardWillShow", async (info) => {
+            console.log("Keyboard Will Show ", info);
+          });
+        }}
+      >
+        show keyboard
+      </button>
+      <button>Hide key maube</button>
     </main>
   );
 };

@@ -1,47 +1,27 @@
-import MessageListItem from "../components/MessageListItem";
-import { useState, useRef, useContext } from "react";
-import { Message, getMessages } from "../data/messages";
-import React, { useEffect } from "react";
-import { getMessaging, Messaging } from "firebase/messaging";
-// import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
-// import {  } from 'firebase';
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { createClient, RealtimeChannel } from "@supabase/supabase-js";
-import {
-  sendOutline,
-  returnUpBackOutline,
-  checkmarkOutline,
-  checkmarkDoneOutline,
-} from "ionicons/icons";
-import { Keyboard } from "@capacitor/keyboard";
-import { MyContext } from "../providers/postProvider";
-const SUPABASE_URL = "https://verqruktxvesbhtimfjm.supabase.co";
-const SUPABASE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcnFydWt0eHZlc2JodGltZmptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTMzMDM3NTIsImV4cCI6MjAyODg3OTc1Mn0.PL71cvIQHRnrUiA4QSPO4odky2s9PYE5dJ493s5sMVg";
-import { post } from "../utils";
+import { sendOutline, returnUpBackOutline } from "ionicons/icons";
 import { useHistory } from "react-router";
 import {
-  IonContent,
   IonHeader,
   IonIcon,
   IonInput,
   IonRouterLink,
   IonButton,
-  IonList,
   IonPage,
-  IonRefresher,
-  IonRefresherContent,
-  IonTitle,
   IonToolbar,
-  useIonViewWillEnter,
-  IonNavLink,
   IonTextarea,
 } from "@ionic/react";
-import "../themes/newChat.css";
-import Home from "../pages/Home";
 
+import { MyContext } from "../providers/postProvider";
+import { post } from "../utils";
+import "../themes/newChat.css";
+
+const SUPABASE_URL = "https://verqruktxvesbhtimfjm.supabase.co";
+const SUPABASE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcnFydWt0eHZlc2JodGltZmptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTMzMDM3NTIsImV4cCI6MjAyODg3OTc1Mn0.PL71cvIQHRnrUiA4QSPO4odky2s9PYE5dJ493s5sMVg";
 const Chat = () => {
   const [message, setMessage] = useState<string>("");
-  const [user, setUser] = useState<string>();
   const [messages, setMessages] = useState<
     {
       userName: string;
@@ -52,19 +32,10 @@ const Chat = () => {
   const channel = useRef<RealtimeChannel | null>(null);
   const { myUsername, person, setPerson, getConvos, addMessage } =
     useContext(MyContext);
-  const [uniqueUsers, setUniqueUsers] = useState();
-  const [myConvo, setMyConvo] = useState();
   const history = useHistory();
   const [recipient, setRecipient] = useState();
-  const [convoId, setConvoId] = useState<string>("");
   const [userName, setUserName] = useState<string | null>(myUsername);
   const [roomName, setRoomName] = useState<string>("");
-
-  // useEffect(() => {
-  //     if (userName === '') {
-  //         setUserName(localStorage.getItem('user'))
-  //     }
-  // }, [userName])
 
   useEffect(() => {
     setRoomName(`${localStorage.getItem("user")}${recipient}`);
@@ -74,7 +45,6 @@ const Chat = () => {
     if (messages.length === 1) {
       createConversation();
     } else if (messages.length > 1) {
-      // addMessage(convoId, payload.message.message, payload.message.userName);
     }
   }, [messages]);
 
@@ -136,13 +106,7 @@ const Chat = () => {
       <IonHeader>
         <IonToolbar>
           <div className="flex">
-            <IonRouterLink
-              // onClick={() => {
-              //   updateMessages(convoId, messages, uniqueUsers);
-              // }}
-              routerLink="/home"
-              routerDirection="back"
-            >
+            <IonRouterLink routerLink="/home" routerDirection="back">
               <IonIcon size="large" icon={returnUpBackOutline}></IonIcon>
             </IonRouterLink>
             <div className="centeredInputContainer">
@@ -173,15 +137,14 @@ const Chat = () => {
                   className={`${myUsername === msg.userName ? "blueEnd" : "grayEnd"}`}
                 >
                   {messages[i - 1]?.userName === msg.userName ? (
-                    <>{}</>
+                    <>{ }</>
                   ) : (
                     <div className="user">{msg.userName}</div>
                   )}
                 </div>
                 <div
-                  className={`message ${
-                    myUsername === msg.userName ? "blue" : "gray"
-                  } `}
+                  className={`message ${myUsername === msg.userName ? "blue" : "gray"
+                    } `}
                 >
                   {msg.message}
                 </div>
