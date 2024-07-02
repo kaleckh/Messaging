@@ -1,6 +1,19 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useIonRouter, IonContent, IonButtons, IonMenuButton, IonIcon, IonMenu, IonHeader, IonRouterLink, IonButton, IonPage, IonTitle, IonToolbar, } from "@ionic/react";
-import { addOutline, trash } from "ionicons/icons";
+import {
+  useIonRouter,
+  IonContent,
+  IonButtons,
+  IonMenuButton,
+  IonIcon,
+  IonMenu,
+  IonHeader,
+  IonRouterLink,
+  IonButton,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+} from "@ionic/react";
+import { addOutline, chevronForwardOutline } from "ionicons/icons";
 import { useHistory } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Pagination } from "swiper/modules";
@@ -22,10 +35,20 @@ const SUPABASE_KEY =
 // Swiper modules setup
 SwiperCore.use([Pagination]);
 
+interface MessageData {
+  conversationId: string;
+  date: string; // Use string because date is usually a string from an API
+  id: string;
+  message: string;
+  status: string;
+  userName: string;
+  recipient?: string;
+}
+
 const Home: React.FC = () => {
   const router = useIonRouter();
   const history = useHistory();
-  const [messageData, setMessageData] = useState<{ conversationId: string, date: Date, id: string, message: string, status: string, userName: string }>();
+  const [messageData, setMessageData] = useState<MessageData[]>([]);
   const { person, setPerson, getConvos, myConvos, deleteConvos, myUsername } =
     useContext(MyContext);
   const [visibleCards, setVisibleCards] = useState<boolean[]>([]);
@@ -39,6 +62,7 @@ const Home: React.FC = () => {
       },
     },
   };
+
   useEffect(() => {
     getConvos();
     const intervalId = setInterval(getConvos, 1000);
@@ -46,20 +70,35 @@ const Home: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    setVisibleCards(
-      myConvos?.map((card) => {
-        return true;
-      }),
-    );
+    setVisibleCards(myConvos?.map(() => true));
   }, [myConvos]);
+
+  const getConvoData = async () => {
+    try {
+      const result = await fetch(
+        `http://localhost:3000/api/getConvoData?ids=${myConvos?.map((convo: { id: string }) => convo.id)}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      const allData = await result.json();
+      console.log(allData.Posts, "this is the response");
+      setMessageData(allData.Posts);
+    } catch (error) {
+      console.log(error, "this is an error");
+    }
+  };
 
   const handleNavigation = () => {
     router.push("/home", "forward");
   };
 
-  function gotoTopic(topicId: String) {
+  const gotoTopic = (topicId: string) => {
     history.push("/chat/" + topicId);
-  }
+  };
 
   const handleSlideChange = (swiper: any, index: number) => {
     if (swiper.activeIndex === 1) {
@@ -71,13 +110,16 @@ const Home: React.FC = () => {
   const handleDragEnd = (info: any, messageId: string) => {
     const dragDistance = info.point.x;
     if (dragDistance < -DELETE_BTN_WIDTH) {
-      // setMessagesList(messagesList.filter(message => message.id !== messageId))
       deleteConvos(messageId);
     }
   };
 
+  useEffect(() => {
+    getConvoData();
+  }, [myConvos]);
 
-  console.log(myConvos, 'these are my convos')
+  console.log(messageData, "this is all the message data");
+  console.log(myConvos, "this is my convos");
 
   return (
     <>
@@ -101,17 +143,17 @@ const Home: React.FC = () => {
         <IonContent>
           <ul>
             <AnimatePresence>
-              {myConvos?.map((convo: { date: Date, id: string, me: string, recipient: string, roomName: string }, i) => {
-                // Extract and format the local time for the last message date
-                // const lastMessageDate = new Date(convo?.message[convo?.message.length - 1].date);
-                // let hours = lastMessageDate.getHours();
-                // const minutes = String(lastMessageDate.getMinutes()).padStart(2, "0");
-                // const seconds = String(lastMessageDate.getSeconds()).padStart(2, "0");
-                // const ampm = hours >= 12 ? 'PM' : 'AM';
-                // hours = hours % 12 || 12; // Convert to 12-hour format
+              {messageData?.map((convo, i) => {
+                const lastMessageDate = new Date(convo.date);
+                let hours = lastMessageDate.getHours();
+                const minutes = String(lastMessageDate.getMinutes()).padStart(
+                  2,
+                  "0",
+                );
+                const ampm = hours >= 12 ? "PM" : "AM";
+                hours = hours % 12 || 12; // Convert to 12-hour format
 
-                // const time = `${hours}:${minutes} ${ampm}`;
-
+                const time = `${hours}:${minutes} ${ampm}`;
                 return (
                   <motion.li
                     key={convo.id}
@@ -121,12 +163,12 @@ const Home: React.FC = () => {
                     <motion.div
                       drag="x"
                       dragConstraints={{ left: 0, right: 0 }}
-                      onDragEnd={(_, info) => handleDragEnd(info, convo?.id)}
+                      onDragEnd={(_, info) => handleDragEnd(info, convo.id)}
                       className="msg-container"
                     >
                       <div>
-                        {messageData?.status === "Delivered" &&
-                          lastUser !== myUsername ? (
+                        {convo.status === "Delivered" &&
+                        convo.userName !== myUsername ? (
                           <div className="blueDot"></div>
                         ) : (
                           <div className="blueDotNothing"></div>
@@ -140,23 +182,25 @@ const Home: React.FC = () => {
                         }
                         alt="User icon"
                       />
-
                       <div
-                        onClick={() => gotoTopic(convo?.id)}
+                        onClick={() => gotoTopic(convo.conversationId)}
                         className="message-text"
                       >
                         <div className="flexTime">
-                          <div className="Title">
-                            {localStorage.getItem("user") === convo?.me
-                              ? convo?.recipient
-                              : convo?.me}
+                          <div style={{ width: "63%" }} className="Title">
+                            {convo.recipient === myUsername ? (
+                              <>{convo.userName}</>
+                            ) : (
+                              <>{convo.recipient}</>
+                            )}
                           </div>
-                          {/* <div className='graySub'>{time}</div> */}
+                          <div className="graySub">{time}</div>
+                          <IonIcon
+                            size="small"
+                            icon={chevronForwardOutline}
+                          ></IonIcon>
                         </div>
-                        <LastMessage
-                          setData={setMessageData}
-                          conversationId={convo?.id}
-                        />
+                        <div className="smallGray">{convo.message}</div>
                       </div>
                     </motion.div>
                     <div className="delete-btn">Delete</div>

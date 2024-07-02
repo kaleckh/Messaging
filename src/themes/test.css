@@ -62,10 +62,11 @@
 
 .Title {
   color: black;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 450;
   padding-bottom: 5px;
 }
 .graySub {
   color: rgb(161, 161, 161);
+  height: 20px;
 }

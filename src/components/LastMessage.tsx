@@ -5,14 +5,14 @@ const LastMessage = ({
   conversationId,
   setStatus,
   setLastUser,
-  setData
+  setData,
 }: {
-  setData: (data: {}) => {};
-  conversationId: "";
-  setStatus: (status: string) => {};
-  setLastUser: (username: string) => {};
+  setData: (data: {}) => void;
+  conversationId: string; // Adjusted to string type
+  setStatus: (status: string) => void;
+  setLastUser: (username: string) => void;
 }) => {
-  const [lastMessage, setLastMessage] = useState();
+  const [lastMessage, setLastMessage] = useState<string>(""); // Specify string type for state
 
   const getLastMessage = async (conversationId: string) => {
     try {
@@ -27,10 +27,16 @@ const LastMessage = ({
       );
       const userInfo = await convos.json();
       console.log(userInfo, "this is user info");
-      setLastMessage(userInfo.Response[userInfo.Response.length - 1].message);
-      setData(userInfo.Response[userInfo.Response.length - 1])
-      setLastUser(userInfo.Response[userInfo.Response.length - 1].userName);
-      return userInfo.Response[0].message;
+      const fullMessage =
+        userInfo.Response[userInfo.Response.length - 1].message;
+      if (fullMessage.length > 10) {
+        setLastMessage(fullMessage.substring(0, 15) + "...");
+      } else {
+        setLastMessage(fullMessage);
+      }
+      // setData(userInfo.Response[userInfo.Response.length - 1]);
+      // setLastUser(userInfo.Response[userInfo.Response.length - 1].userName);
+      return fullMessage; // Return the full message if needed elsewhere
     } catch (error) {
       console.log(error, "this is the create user error");
     }
@@ -47,7 +53,7 @@ const LastMessage = ({
     }
   }, [conversationId]);
 
-  return <div>{lastMessage}</div>;
+  return <div className="grayLetters">{lastMessage}</div>;
 };
 
 export default LastMessage;

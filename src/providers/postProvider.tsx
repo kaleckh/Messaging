@@ -16,6 +16,7 @@ const MyContext = createContext({
     message: string,
     userName: string,
     status: string,
+    recipient: string,
   ) => {},
 });
 
@@ -71,8 +72,9 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
     message: string,
     userName: string,
     status: string,
+    recipient: string,
   ) => {
-    console.log(status, "status of stuff");
+    console.log(recipient, "status of stuff");
     const addMessage = await post({
       url: `http://localhost:3000/api/addMessage`,
       body: {
@@ -81,6 +83,7 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
         userName,
         conversationId,
         status: status,
+        recipient,
       },
     });
     getConvos();

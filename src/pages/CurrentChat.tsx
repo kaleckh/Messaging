@@ -9,6 +9,7 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
+  IonItem,
   IonButton,
   IonRouterLink,
   IonPage,
@@ -20,9 +21,24 @@ import { useParams } from "react-router-dom";
 
 type MessageStatus = "Delivered" | "Read";
 
-const CurrentChat = () => {
+interface Message {
+  id: string;
+  userName: string;
+  message: string;
+  status: MessageStatus;
+}
+
+interface ConvoInfo {
+  id: string;
+  users: [];
+  me: string;
+  message: { userName: string; message: string }[];
+  recipient: string;
+}
+
+const CurrentChat: React.FC = () => {
   const [message, setMessage] = useState<string>("");
-  const channel = useRef(null);
+  const channel = useRef<any>(null);
   const { id } = useParams<{ id: string }>();
   const { myUsername, person, setPerson, getConvos, addMessage, myConvos } =
     useContext(MyContext);
@@ -30,27 +46,14 @@ const CurrentChat = () => {
     localStorage.getItem("user"),
   );
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const [info, setInfo] = useState<{
-    id: string;
-    users: [];
-    me: string;
-    message: { userName: string; message: string }[];
-    recipient: string;
-  }>();
-  const [messages, setMessages] = useState<
-    {
-      id: string;
-      userName: string;
-      message: string;
-      status: MessageStatus;
-    }[]
-  >([]);
+  const [info, setInfo] = useState<ConvoInfo | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
   };
 
-  const updatedMessage = async (id: string, status: string) => {
+  const updatedMessage = async (id: string, status: MessageStatus) => {
     try {
       const convos = await fetch(`http://localhost:3000/api/updateMessage`, {
         method: "POST",
@@ -71,15 +74,21 @@ const CurrentChat = () => {
   };
 
   useEffect(() => {
-    updateMessagesRead(id);
-  }, [myUsername]);
+    if (
+      messages.length > 0 &&
+      messages[messages.length - 1]?.userName !== myUsername &&
+      messages[messages.length - 1]?.status === "Delivered"
+    ) {
+      updateMessagesRead(id);
+    }
+  }, [messages]);
 
   const updateMessagesRead = async (id: string) => {
     try {
       const convos = await fetch(
         `http://localhost:3000/api/updateMessageRead?`,
         {
-          method: "Post",
+          method: "POST",
           body: JSON.stringify({
             conversationId: id,
           }),
@@ -105,7 +114,7 @@ const CurrentChat = () => {
         },
       });
       channel.current
-        .on("broadcast", { event: "message" }, ({ payload }) => {
+        .on("broadcast", { event: "message" }, ({ payload }: any) => {
           payload.message.date = new Date();
           payload.message.status = "Delivered";
           // setMessages((prev) => [...prev, payload.message]);
@@ -130,11 +139,11 @@ const CurrentChat = () => {
     scrollToBottom();
   }, [messages]);
 
-  function onSend() {
+  const onSend = () => {
     const messageId = createId();
     if (!channel.current || message.trim().length === 0) return;
-    if (userName) {
-      addMessage(messageId, id, message, userName, "Delivered");
+    if (userName && info) {
+      addMessage(messageId, id, message, userName, "Delivered", info.recipient);
     }
     channel.current.send({
       type: "broadcast",
@@ -142,7 +151,7 @@ const CurrentChat = () => {
       payload: { message: { message, userName, id: messageId } },
     });
     setMessage("");
-  }
+  };
 
   const getConvo = async () => {
     try {
@@ -180,6 +189,8 @@ const CurrentChat = () => {
     }
   };
 
+  console.log(messages, "these are the messages");
+
   return (
     <IonPage>
       <IonHeader>
@@ -208,10 +219,14 @@ const CurrentChat = () => {
                 className={` ${userName === msg.userName ? "end" : "start"}`}
               >
                 <div
-                  className={`${userName === msg.userName ? "centerEnd" : "centerBeginning"}`}
+                  className={`${
+                    userName === msg.userName ? "centerEnd" : "centerBeginning"
+                  }`}
                 >
                   <div
-                    className={`message ${userName === msg.userName ? "blue" : "gray"}`}
+                    className={`message ${
+                      userName === msg.userName ? "blue" : "gray"
+                    }`}
                   >
                     {msg.message}
                   </div>
@@ -238,29 +253,20 @@ const CurrentChat = () => {
       </IonContent>
       <div className="columnWhite">
         <div className="flex">
-          <IonTextarea
-            style={{
-              borderBottom: "1px solid black",
-              width: "90%",
-              height: "fit-content",
-              backgroundColor: "white",
-            }}
-            placeholder="Message"
-            value={message}
-            onIonInput={(e) => setMessage(e.target.value)}
-            onKeyUp={(e) => {
-              if (e.key === "Enter") {
-                onSend();
-              }
-            }}
-            className="something"
-          />
-          <IonButton
-            onClick={() => {
-              onSend();
-            }}
-            size="small"
-          >
+          <IonItem style={{ width: "100%" }} lines="none">
+            <IonTextarea
+              className="something"
+              placeholder="Message"
+              value={message}
+              onIonInput={(e) => setMessage(e.detail.value!)}
+              onKeyUp={(e) => {
+                if (e.key === "Enter") {
+                  onSend();
+                }
+              }}
+            />
+          </IonItem>
+          <IonButton onClick={onSend} size="small">
             <IonIcon icon={sendOutline}></IonIcon>
           </IonButton>
         </div>
