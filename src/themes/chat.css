@@ -81,6 +81,7 @@
   justify-content: center;
   /* Centers the input horizontally */
   align-items: center;
+  flex-grow: 1;
   /* Centers the input vertically if needed */
   height: 100%;
   /* Full height of the parent container */
@@ -97,12 +98,13 @@
   display: flex;
   flex-direction: column;
   align-items: end;
-  width: 100%;
+  width: 90%;
 }
 
 .centerBeginning {
   display: flex;
   flex-direction: column;
+  width: 100%;
   align-items: start;
 }
 
@@ -154,11 +156,12 @@
   border: 1px solid rgb(205, 197, 197);
   border-radius: 30px;
   font-size: 16px;
+  width: 100%;
   height: fit-content;
+  max-height: 40px;
   padding-left: 12px !important;
-  height: 25px;
-  margin-right: 8px;
-  padding: 5px;
+  /* margin-right: 3px; */
+  padding: 8px;
 }
 
 .something textarea::placeholder {
@@ -187,6 +190,12 @@
 .flexTime {
   display: flex;
   align-items: center;
-  width: 95%;
   justify-content: space-between;
+  width: 100%;
+}
+.noneBack{
+  --background: none;    
+  --box-shadow: none;
+  --padding-start: 0;
+  --padding-end: 0;
 }

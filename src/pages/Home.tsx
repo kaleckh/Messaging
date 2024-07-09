@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import Test from "./Test";
 import {
   useIonRouter,
   IonContent,
@@ -46,9 +47,10 @@ interface MessageData {
 }
 
 const Home: React.FC = () => {
+
+  const [messageData, setMessageData] = useState<MessageData[]>([]);
   const router = useIonRouter();
   const history = useHistory();
-  const [messageData, setMessageData] = useState<MessageData[]>([]);
   const { person, setPerson, getConvos, myConvos, deleteConvos, myUsername } =
     useContext(MyContext);
   const [visibleCards, setVisibleCards] = useState<boolean[]>([]);
@@ -68,6 +70,10 @@ const Home: React.FC = () => {
     const intervalId = setInterval(getConvos, 1000);
     return () => clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    getConvos()
+  }, [])
 
   useEffect(() => {
     setVisibleCards(myConvos?.map(() => true));
@@ -118,9 +124,8 @@ const Home: React.FC = () => {
     getConvoData();
   }, [myConvos]);
 
-  console.log(messageData, "this is all the message data");
-  console.log(myConvos, "this is my convos");
 
+  console.log(messageData, 'this is message data')
   return (
     <>
       <IonMenu contentId="mainContent">
@@ -154,57 +159,9 @@ const Home: React.FC = () => {
                 hours = hours % 12 || 12; // Convert to 12-hour format
 
                 const time = `${hours}:${minutes} ${ampm}`;
+                
                 return (
-                  <motion.li
-                    key={convo.id}
-                    exit={MESSAGE_DELETE_ANIMATION}
-                    transition={MESSAGE_DELETE_TRANSITION}
-                  >
-                    <motion.div
-                      drag="x"
-                      dragConstraints={{ left: 0, right: 0 }}
-                      onDragEnd={(_, info) => handleDragEnd(info, convo.id)}
-                      className="msg-container"
-                    >
-                      <div>
-                        {convo.status === "Delivered" &&
-                        convo.userName !== myUsername ? (
-                          <div className="blueDot"></div>
-                        ) : (
-                          <div className="blueDotNothing"></div>
-                        )}
-                      </div>
-                      <img
-                        style={{ marginLeft: "10px" }}
-                        className="user-icon"
-                        src={
-                          "https://ionicframework.com/docs/img/demos/avatar.svg"
-                        }
-                        alt="User icon"
-                      />
-                      <div
-                        onClick={() => gotoTopic(convo.conversationId)}
-                        className="message-text"
-                      >
-                        <div className="flexTime">
-                          <div style={{ width: "63%" }} className="Title">
-                            {convo.recipient === myUsername ? (
-                              <>{convo.userName}</>
-                            ) : (
-                              <>{convo.recipient}</>
-                            )}
-                          </div>
-                          <div className="graySub">{time}</div>
-                          <IonIcon
-                            size="small"
-                            icon={chevronForwardOutline}
-                          ></IonIcon>
-                        </div>
-                        <div className="smallGray">{convo.message}</div>
-                      </div>
-                    </motion.div>
-                    <div className="delete-btn">Delete</div>
-                  </motion.li>
+                  <Test key={convo.id} time={time} conversationId={convo.conversationId} message={convo.message} status={convo.status} userName={convo.userName} recipient={convo.recipient} />
                 );
               })}
             </AnimatePresence>

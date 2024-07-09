@@ -16,9 +16,6 @@ import { MyContext } from "../providers/postProvider";
 import { post } from "../utils";
 import "../themes/newChat.css";
 
-const SUPABASE_URL = "https://verqruktxvesbhtimfjm.supabase.co";
-const SUPABASE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcnFydWt4dmVzYmh0aW1mam0iLCJyb2xlIjoiYW5vbiIsImlhdCI6MTcxMzMwMzc1MiwiZXhwIjoyMDI4ODc5NzUyfQ.PL71cvIQHRnrUiA4QSPO4odky2s9PYE5dJ493s5sMVg";
 
 type Message = {
   userName: string;
@@ -47,56 +44,32 @@ const Chat: React.FC = () => {
     }
   }, [messages]);
 
+
   useEffect(() => {
-    if (!channel.current) {
-      const client = createClient(SUPABASE_URL, SUPABASE_KEY);
-      channel.current = client.channel(roomName, {
-        config: {
-          broadcast: {
-            self: true,
-          },
-        },
-      });
 
-      channel.current
-        .on("broadcast", { event: "message" }, ({ payload }) => {
-          payload.message.date = new Date();
-          setMessages((prev) => [...prev, payload.message]);
-        })
-        .subscribe();
-    }
-    return () => {
-      if (channel.current) {
-        channel.current.unsubscribe();
-        channel.current = null;
-      }
-    };
-  }, [roomName]);
+  }, [])
 
-  const onSend = () => {
-    if (!channel.current || message.trim().length === 0) return;
-    channel.current.send({
-      type: "broadcast",
-      event: "message",
-      payload: { message: { message, userName } },
-    });
-    setMessage("");
-  };
 
   const createConversation = async () => {
     const response = await post({
       url: `http://localhost:3000/api/createConversation`,
       body: {
-        messages,
+        messages: {
+          message,
+          userName,
+          recipient
+        },
         me: localStorage.getItem("user"),
         roomName: `${localStorage.getItem("user")}${recipient}`,
         recipient,
       },
     });
     history.push(`/chat/${response.update.id}`);
+    setMessage('')
+    setRecipient('')
   };
 
-  console.log(messages, "all messages");
+  console.log(myUsername, "all messages");
 
   return (
     <IonPage>
@@ -113,7 +86,7 @@ const Chat: React.FC = () => {
                   setRecipient(e.detail.value as string);
                 }}
                 type="text"
-                placeholder={recipient ? recipient : "who to?"}
+                placeholder={"who to?"}
               ></IonInput>
             </div>
             <div></div>
@@ -128,14 +101,12 @@ const Chat: React.FC = () => {
               className={` ${myUsername === msg.userName ? "end" : "start"}`}
             >
               <div
-                className={`${
-                  myUsername === msg.userName ? "centerEnd" : "centerBeginning"
-                }`}
+                className={`${myUsername === msg.userName ? "centerEnd" : "centerBeginning"
+                  }`}
               >
                 <div
-                  className={`${
-                    myUsername === msg.userName ? "blueEnd" : "grayEnd"
-                  }`}
+                  className={`${myUsername === msg.userName ? "blueEnd" : "grayEnd"
+                    }`}
                 >
                   {messages[i - 1]?.userName === msg.userName ? (
                     <></>
@@ -144,9 +115,8 @@ const Chat: React.FC = () => {
                   )}
                 </div>
                 <div
-                  className={`message ${
-                    myUsername === msg.userName ? "blue" : "gray"
-                  } `}
+                  className={`message ${myUsername === msg.userName ? "blue" : "gray"
+                    } `}
                 >
                   {msg.message}
                 </div>
@@ -168,12 +138,12 @@ const Chat: React.FC = () => {
               onIonInput={(e) => setMessage(e.detail.value!)}
               onKeyUp={(e) => {
                 if (e.key === "Enter") {
-                  onSend();
+                  createConversation()
                 }
               }}
               className="something"
             />
-            <IonButton onClick={onSend} size="small">
+            <IonButton onClick={createConversation} size="small">
               <IonIcon icon={sendOutline}></IonIcon>
             </IonButton>
           </div>
