@@ -40,7 +40,7 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
         },
       );
       const userInfo = await convos.json();
-      setMyConvos(prevConvos => [...userInfo.Posts]); 
+      setMyConvos((prevConvos) => [...userInfo.Posts]);
       console.log(userInfo.Posts, "this is convo response");
     } catch (error) {
       console.log(error, "this is the create user error");

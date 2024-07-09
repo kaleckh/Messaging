@@ -55,11 +55,9 @@ const CurrentChat: React.FC = () => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
   };
-  
 
   const updatedMessage = async (id: string, status: MessageStatus) => {
-    debugger
-    console.log('updated message')
+    console.log("updated message");
     try {
       const convos = await fetch(`http://localhost:3000/api/updateMessage`, {
         method: "POST",
@@ -84,14 +82,19 @@ const CurrentChat: React.FC = () => {
       messages.length > 0 &&
       messages[messages.length - 1]?.userName !== myUsername &&
       messages[messages.length - 1]?.status === "Delivered"
-    ) {      
-      console.log('inside the use effect')
+    ) {
+      console.log(
+        messages[messages.length - 1]?.userName,
+        "this is the username message",
+      );
+      console.log(myUsername, "this is my username");
+      console.log("Use Effect");
       updateMessagesRead(id);
     }
   }, [messages]);
 
   const updateMessagesRead = async (id: string) => {
-    console.log('"read"')    
+    console.log("Read Function");
     try {
       const convos = await fetch(
         `http://localhost:3000/api/updateMessageRead?`,
@@ -139,7 +142,6 @@ const CurrentChat: React.FC = () => {
     };
   }, [messages]);
 
-
   const onSend = () => {
     const messageId = createId();
     if (!channel.current || message.trim().length === 0) return;
@@ -162,8 +164,6 @@ const CurrentChat: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
-
-
   const getConvo = async () => {
     try {
       const convos = await fetch(
@@ -176,9 +176,8 @@ const CurrentChat: React.FC = () => {
         },
       );
       const thisConvo = await convos.json();
-      // setLoad(thisConvo.Posts)      
+      // setLoad(thisConvo.Posts)
       setMessages(thisConvo.Posts);
-
     } catch (error) {
       console.log(error, "this is the create user error");
     }
@@ -202,18 +201,25 @@ const CurrentChat: React.FC = () => {
     }
   };
 
-
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
           <div className="flex">
             {/* <IonRouterLink routerLink="/home" routerDirection="back"> */}
-            <IonButton onClick={(e) => {
-              e.preventDefault();
-              history.push('/home');
-            }} className="noneBack">
-              <IonIcon style={{ color: "black" }} slot="icon-only" size="large" icon={returnUpBackOutline}></IonIcon>
+            <IonButton
+              onClick={(e) => {
+                e.preventDefault();
+                history.push("/home");
+              }}
+              className="noneBack"
+            >
+              <IonIcon
+                style={{ color: "black" }}
+                slot="icon-only"
+                size="large"
+                icon={returnUpBackOutline}
+              ></IonIcon>
             </IonButton>
             {/* </IonRouterLink> */}
             <div className="centeredInputContainer">
@@ -236,12 +242,14 @@ const CurrentChat: React.FC = () => {
                 className={` ${userName === msg.userName ? "end" : "start"}`}
               >
                 <div
-                  className={`${userName === msg.userName ? "centerEnd" : "centerBeginning"
-                    }`}
+                  className={`${
+                    userName === msg.userName ? "centerEnd" : "centerBeginning"
+                  }`}
                 >
                   <div
-                    className={`message ${userName === msg.userName ? "blue" : "gray"
-                      }`}
+                    className={`message ${
+                      userName === msg.userName ? "blue" : "gray"
+                    }`}
                   >
                     {msg.message}
                   </div>
@@ -267,7 +275,7 @@ const CurrentChat: React.FC = () => {
         </div>
       </IonContent>
       <div className="columnWhite">
-        <div style={{ paddingBottom: '10px' }} className="flexTime">
+        <div style={{ paddingBottom: "10px" }} className="flexTime">
           <IonItem style={{ width: "100%" }} lines="none">
             {/* <IonTextarea
               className="something"
@@ -280,12 +288,17 @@ const CurrentChat: React.FC = () => {
                 }
               }}
             /> */}
-            <textarea onKeyUp={(e) => {
-              if (e.key === "Enter") {
-                onSend();
-                setMessage('')
-              }
-            }} value={message} onChange={(e) => setMessage(e.target.value!)} className="something"></textarea>
+            <textarea
+              onKeyUp={(e) => {
+                if (e.key === "Enter") {
+                  onSend();
+                  setMessage("");
+                }
+              }}
+              value={message}
+              onChange={(e) => setMessage(e.target.value!)}
+              className="something"
+            ></textarea>
           </IonItem>
           <IonButton onClick={onSend} size="small">
             <IonIcon icon={sendOutline}></IonIcon>

@@ -14,13 +14,12 @@ import {
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { addOutline, chevronForwardOutline } from "ionicons/icons";
-import { useHistory } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { Pagination } from "swiper/modules";
+import { addOutline } from "ionicons/icons";
+
+import {  AnimatePresence } from "framer-motion";
+
 import { MyContext } from "../providers/postProvider";
-import SwiperCore from "swiper";
-import LastMessage from "../components/LastMessage";
+
 
 import "../themes/chat.css";
 import "../themes/swiper.css";
@@ -28,13 +27,7 @@ import "../themes/test.css";
 import "../themes/styles.scss";
 import "./Home.css";
 
-// Supabase constants
-const SUPABASE_URL = "https://verqruktxvesbhtimfjm.supabase.co";
-const SUPABASE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcnFydWt0eHZlc2JodGltZmptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTMzMDM3NTIsImV4cCI6MjAyODg3OTc1Mn0.PL71cvIQHRnrUiA4QSPO4odky2s9PYE5dJ493s5sMVg";
 
-// Swiper modules setup
-SwiperCore.use([Pagination]);
 
 interface MessageData {
   conversationId: string;
@@ -49,21 +42,7 @@ interface MessageData {
 const Home: React.FC = () => {
 
   const [messageData, setMessageData] = useState<MessageData[]>([]);
-  const router = useIonRouter();
-  const history = useHistory();
-  const { person, setPerson, getConvos, myConvos, deleteConvos, myUsername } =
-    useContext(MyContext);
-  const [visibleCards, setVisibleCards] = useState<boolean[]>([]);
-  const [lastUser, setLastUser] = useState<string>();
-  const DELETE_BTN_WIDTH = 70;
-  const MESSAGE_DELETE_ANIMATION = { height: 0, opacity: 0 };
-  const MESSAGE_DELETE_TRANSITION = {
-    opacity: {
-      transition: {
-        duration: 0,
-      },
-    },
-  };
+  const { getConvos, myConvos } = useContext(MyContext);
 
   useEffect(() => {
     getConvos();
@@ -71,13 +50,6 @@ const Home: React.FC = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  useEffect(() => {
-    getConvos()
-  }, [])
-
-  useEffect(() => {
-    setVisibleCards(myConvos?.map(() => true));
-  }, [myConvos]);
 
   const getConvoData = async () => {
     try {
@@ -98,34 +70,11 @@ const Home: React.FC = () => {
     }
   };
 
-  const handleNavigation = () => {
-    router.push("/home", "forward");
-  };
-
-  const gotoTopic = (topicId: string) => {
-    history.push("/chat/" + topicId);
-  };
-
-  const handleSlideChange = (swiper: any, index: number) => {
-    if (swiper.activeIndex === 1) {
-      console.log(`Slide ${index + 1} is in view`);
-      // Run your specific function here
-    }
-  };
-
-  const handleDragEnd = (info: any, messageId: string) => {
-    const dragDistance = info.point.x;
-    if (dragDistance < -DELETE_BTN_WIDTH) {
-      deleteConvos(messageId);
-    }
-  };
 
   useEffect(() => {
     getConvoData();
   }, [myConvos]);
 
-
-  console.log(messageData, 'this is message data')
   return (
     <>
       <IonMenu contentId="mainContent">
@@ -157,11 +106,10 @@ const Home: React.FC = () => {
                 );
                 const ampm = hours >= 12 ? "PM" : "AM";
                 hours = hours % 12 || 12; // Convert to 12-hour format
-
                 const time = `${hours}:${minutes} ${ampm}`;
-                
+
                 return (
-                  <Test key={convo.id} time={time} conversationId={convo.conversationId} message={convo.message} status={convo.status} userName={convo.userName} recipient={convo.recipient} />
+                  <Test key={convo.conversationId} time={time} conversationId={convo.conversationId} message={convo.message} status={convo.status} userName={convo.userName} recipient={convo.recipient} />
                 );
               })}
             </AnimatePresence>

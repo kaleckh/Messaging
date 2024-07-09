@@ -193,8 +193,8 @@
   justify-content: space-between;
   width: 100%;
 }
-.noneBack{
-  --background: none;    
+.noneBack {
+  --background: none;
   --box-shadow: none;
   --padding-start: 0;
   --padding-end: 0;

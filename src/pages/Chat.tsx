@@ -4,6 +4,7 @@ import { sendOutline, returnUpBackOutline } from "ionicons/icons";
 import { useHistory } from "react-router";
 import {
   IonHeader,
+  IonItem,
   IonIcon,
   IonInput,
   IonRouterLink,
@@ -15,7 +16,6 @@ import {
 import { MyContext } from "../providers/postProvider";
 import { post } from "../utils";
 import "../themes/newChat.css";
-
 
 type Message = {
   userName: string;
@@ -44,11 +44,7 @@ const Chat: React.FC = () => {
     }
   }, [messages]);
 
-
-  useEffect(() => {
-
-  }, [])
-
+  useEffect(() => {}, []);
 
   const createConversation = async () => {
     const response = await post({
@@ -57,7 +53,7 @@ const Chat: React.FC = () => {
         messages: {
           message,
           userName,
-          recipient
+          recipient,
         },
         me: localStorage.getItem("user"),
         roomName: `${localStorage.getItem("user")}${recipient}`,
@@ -65,8 +61,8 @@ const Chat: React.FC = () => {
       },
     });
     history.push(`/chat/${response.update.id}`);
-    setMessage('')
-    setRecipient('')
+    setMessage("");
+    setRecipient("");
   };
 
   console.log(myUsername, "all messages");
@@ -101,12 +97,14 @@ const Chat: React.FC = () => {
               className={` ${myUsername === msg.userName ? "end" : "start"}`}
             >
               <div
-                className={`${myUsername === msg.userName ? "centerEnd" : "centerBeginning"
-                  }`}
+                className={`${
+                  myUsername === msg.userName ? "centerEnd" : "centerBeginning"
+                }`}
               >
                 <div
-                  className={`${myUsername === msg.userName ? "blueEnd" : "grayEnd"
-                    }`}
+                  className={`${
+                    myUsername === msg.userName ? "blueEnd" : "grayEnd"
+                  }`}
                 >
                   {messages[i - 1]?.userName === msg.userName ? (
                     <></>
@@ -115,8 +113,9 @@ const Chat: React.FC = () => {
                   )}
                 </div>
                 <div
-                  className={`message ${myUsername === msg.userName ? "blue" : "gray"
-                    } `}
+                  className={`message ${
+                    myUsername === msg.userName ? "blue" : "gray"
+                  } `}
                 >
                   {msg.message}
                 </div>
@@ -125,24 +124,19 @@ const Chat: React.FC = () => {
           ))}
         </div>
         <div className="columnWhite">
-          <div className="flex">
-            <IonTextarea
-              style={{
-                borderBottom: "1px solid black",
-                width: "90%",
-                height: "fit-content",
-                backgroundColor: "white",
-              }}
-              placeholder="Message"
-              value={message}
-              onIonInput={(e) => setMessage(e.detail.value!)}
-              onKeyUp={(e) => {
-                if (e.key === "Enter") {
-                  createConversation()
-                }
-              }}
-              className="something"
-            />
+          <div style={{ paddingBottom: "10px" }} className="flexTime">
+            <IonItem style={{ width: "100%" }} lines="none">
+              <textarea
+                onKeyUp={(e) => {
+                  if (e.key === "Enter") {
+                    createConversation();
+                  }
+                }}
+                value={message}
+                onChange={(e) => setMessage(e.target.value!)}
+                className="something"
+              ></textarea>
+            </IonItem>
             <IonButton onClick={createConversation} size="small">
               <IonIcon icon={sendOutline}></IonIcon>
             </IonButton>
