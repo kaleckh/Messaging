@@ -36,7 +36,7 @@ interface TestProps {
 const Test = (props: TestProps) => {
   const history = useHistory();
   const { getConvos, deleteConvos, myUsername } = useContext(MyContext);
-  const DELETE_BTN_WIDTH = 70;
+  const DELETE_BTN_WIDTH = 15;
   const MESSAGE_DELETE_ANIMATION = { height: 0, opacity: 0 };
   const MESSAGE_DELETE_TRANSITION = {
     opacity: {
@@ -51,8 +51,12 @@ const Test = (props: TestProps) => {
   };
 
   const handleDragEnd = (info: any, messageId: string) => {
-    const dragDistance = info.point.x;
-    if (dragDistance < -DELETE_BTN_WIDTH) {
+    console.log('hit drag end')
+    const dragDistance = info.point.x;    
+    console.log(dragDistance, 'testing drag end truthy')
+    console.log(-DELETE_BTN_WIDTH, 'testing drag end truthy')
+    if (dragDistance < DELETE_BTN_WIDTH) {      
+      console.log('drag distance is right')
       deleteConvos(messageId);
     }
   };

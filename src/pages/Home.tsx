@@ -62,8 +62,7 @@ const Home: React.FC = () => {
           },
         },
       );
-      const allData = await result.json();
-      console.log(allData.Posts, "this is the response");
+      const allData = await result.json();      
       setMessageData(allData.Posts);
     } catch (error) {
       console.log(error, "this is an error");
@@ -74,6 +73,9 @@ const Home: React.FC = () => {
   useEffect(() => {
     getConvoData();
   }, [myConvos]);
+
+
+  
 
   return (
     <>

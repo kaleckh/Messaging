@@ -41,13 +41,14 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
       );
       const userInfo = await convos.json();
       setMyConvos((prevConvos) => [...userInfo.Posts]);
-      console.log(userInfo.Posts, "this is convo response");
+      
     } catch (error) {
       console.log(error, "this is the create user error");
     }
   };
 
   const deleteConvos = async (id: string) => {
+    
     try {
       const convos = await fetch(`http://localhost:3000/api/deleteConvo`, {
         method: "POST",
@@ -59,7 +60,7 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
         },
       });
       const thisConvo = await convos.json();
-      console.log(thisConvo.update, "this is deleting the convo");
+      
       getConvos();
     } catch (error) {
       console.log(error, "this is the create user error");
@@ -74,7 +75,7 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
     status: string,
     recipient: string,
   ) => {
-    console.log(recipient, "status of stuff");
+    
     const addMessage = await post({
       url: `http://localhost:3000/api/addMessage`,
       body: {
@@ -86,7 +87,7 @@ const ContextProvider = ({ children }: { children: ReactNode }) => {
         recipient,
       },
     });
-    getConvos();
+    await getConvos();
   };
 
   return (

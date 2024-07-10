@@ -65,7 +65,7 @@ const Chat: React.FC = () => {
     setRecipient("");
   };
 
-  console.log(myUsername, "all messages");
+  
 
   return (
     <IonPage>
