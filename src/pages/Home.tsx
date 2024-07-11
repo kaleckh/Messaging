@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
+import supabase from "../components/supabaseClient";
+import { useHistory } from "react-router-dom";
 import Test from "./Test";
 import {
   useIonRouter,
@@ -16,7 +18,7 @@ import {
 } from "@ionic/react";
 import { addOutline } from "ionicons/icons";
 
-import {  AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 
 import { MyContext } from "../providers/postProvider";
 
@@ -43,6 +45,7 @@ const Home: React.FC = () => {
 
   const [messageData, setMessageData] = useState<MessageData[]>([]);
   const { getConvos, myConvos } = useContext(MyContext);
+  const history = useHistory();
 
   useEffect(() => {
     getConvos();
@@ -62,7 +65,7 @@ const Home: React.FC = () => {
           },
         },
       );
-      const allData = await result.json();      
+      const allData = await result.json();
       setMessageData(allData.Posts);
     } catch (error) {
       console.log(error, "this is an error");
@@ -75,7 +78,24 @@ const Home: React.FC = () => {
   }, [myConvos]);
 
 
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      console.log("You Logged Out");
+      if (error) {
+        console.log("this is logout error", error);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   
+  const gotoTopic = () => {
+    history.push("/login");
+  };
+
+
 
   return (
     <>
@@ -84,7 +104,9 @@ const Home: React.FC = () => {
           <IonToolbar>Menu</IonToolbar>
         </IonHeader>
         <div className="centerButton">
-          <IonButton>Logout</IonButton>
+          <IonButton onClick={() => {
+            handleLogout(); localStorage.removeItem('user'); gotoTopic()
+          }}>Logout</IonButton>
         </div>
       </IonMenu>
       <IonPage>

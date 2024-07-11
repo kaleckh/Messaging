@@ -31,7 +31,7 @@ const Chat: React.FC = () => {
     useContext(MyContext);
   const history = useHistory();
   const [recipient, setRecipient] = useState<string | undefined>();
-  const [userName, setUserName] = useState<string | null>(myUsername);
+  const [userName, setUserName] = useState<string | null>(localStorage.getItem('user'));
   const [roomName, setRoomName] = useState<string>("");
 
   useEffect(() => {

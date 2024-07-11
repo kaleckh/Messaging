@@ -53,7 +53,7 @@ const CurrentChat: React.FC = () => {
   const [load, setLoad] = useState();
   const [updatedMessagesRead, setUpdatedMessagesRead] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
-
+  const index = myConvos.findIndex(item => item.id == id)
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
   };
@@ -124,7 +124,7 @@ const CurrentChat: React.FC = () => {
 
   useEffect(() => {
     if (!channel.current) {
-      channel.current = supabase.channel(myConvos?.roomName, {
+      channel.current = supabase.channel(myConvos[index]?.roomName, {
         config: {
           broadcast: {
             self: true,
@@ -221,7 +221,7 @@ const CurrentChat: React.FC = () => {
   };
 
 
-
+  // console.log(myConvos, 'are myConvos')
   return (
     <IonPage>
       <IonHeader>

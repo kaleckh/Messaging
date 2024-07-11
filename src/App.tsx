@@ -60,9 +60,7 @@ const App: React.FC = () => (
               <Route path="/newChat">
                 <Chat />
               </Route>
-              <Route path="/test">
-                <Test />
-              </Route>
+              <Route path="/test" exact component={Test} />
               <Route path="/chat/:id">
                 <CurrentChat />
               </Route>
