@@ -63,7 +63,7 @@ const Test = (props: TestProps) => {
 
   return (
     <motion.li
-      key={props.conversationId}
+      key={props.id}
       exit={MESSAGE_DELETE_ANIMATION}
       transition={MESSAGE_DELETE_TRANSITION}
     >
