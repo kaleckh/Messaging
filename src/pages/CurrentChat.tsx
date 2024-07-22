@@ -91,6 +91,7 @@ const CurrentChat: React.FC = () => {
   }, [messages]);
 
   const updateMessagesRead = async (id: string) => {
+    
     try {
       const convos = await fetch(
         `http://localhost:3000/api/updateMessageRead?`,
@@ -125,9 +126,9 @@ const CurrentChat: React.FC = () => {
           payload.message.date = new Date();
           payload.message.status = "Delivered";
           setMessages(prevMessages => [...prevMessages, payload.message]);
-          if (payload.message.userName !== myUsername) {
-            updatedMessage(payload.message.id, "Read");
-          }
+          // if (payload.message.userName !== myUsername) {
+          //   updatedMessage(payload.message.id, "Read");
+          // }
         })
         .subscribe();
     }

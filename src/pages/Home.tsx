@@ -17,11 +17,8 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import { addOutline } from "ionicons/icons";
-
 import { AnimatePresence } from "framer-motion";
-
 import { MyContext } from "../providers/postProvider";
-
 
 import "../themes/chat.css";
 import "../themes/swiper.css";

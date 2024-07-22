@@ -10,6 +10,7 @@ import {
   IonRouterLink,
   IonButton,
   IonPage,
+
   IonToolbar,
   IonTextarea,
 } from "@ionic/react";
@@ -44,7 +45,7 @@ const Chat: React.FC = () => {
     }
   }, [messages]);
 
-  useEffect(() => {}, []);
+  useEffect(() => { }, []);
 
   const createConversation = async () => {
     const response = await post({
@@ -65,7 +66,7 @@ const Chat: React.FC = () => {
     setRecipient("");
   };
 
-  
+
 
   return (
     <IonPage>
@@ -80,6 +81,9 @@ const Chat: React.FC = () => {
                 className="inputCenter"
                 onIonInput={(e) => {
                   setRecipient(e.detail.value as string);
+                }}
+                onKeyUp={() => {
+
                 }}
                 type="text"
                 placeholder={"who to?"}
@@ -97,14 +101,12 @@ const Chat: React.FC = () => {
               className={` ${myUsername === msg.userName ? "end" : "start"}`}
             >
               <div
-                className={`${
-                  myUsername === msg.userName ? "centerEnd" : "centerBeginning"
-                }`}
+                className={`${myUsername === msg.userName ? "centerEnd" : "centerBeginning"
+                  }`}
               >
                 <div
-                  className={`${
-                    myUsername === msg.userName ? "blueEnd" : "grayEnd"
-                  }`}
+                  className={`${myUsername === msg.userName ? "blueEnd" : "grayEnd"
+                    }`}
                 >
                   {messages[i - 1]?.userName === msg.userName ? (
                     <></>
@@ -113,9 +115,8 @@ const Chat: React.FC = () => {
                   )}
                 </div>
                 <div
-                  className={`message ${
-                    myUsername === msg.userName ? "blue" : "gray"
-                  } `}
+                  className={`message ${myUsername === msg.userName ? "blue" : "gray"
+                    } `}
                 >
                   {msg.message}
                 </div>
@@ -130,6 +131,7 @@ const Chat: React.FC = () => {
                 onKeyUp={(e) => {
                   if (e.key === "Enter") {
                     createConversation();
+                    setRecipient('')
                   }
                 }}
                 value={message}
